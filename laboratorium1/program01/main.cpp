@@ -106,7 +106,7 @@ void max_zestawu(zestaw *z)
 	suma *tab_sum = (suma*)malloc((2*z->n+1)*sizeof(suma));	// moze byc max 2*n+1 podsum
 	memset(tab_sum, 0, (2*z->n+1)*sizeof(suma));		// zerowanie pamieci, zeby nie musiec inicjalizowac D, U i stop w kazdej podsumie
 	bool dodatnie = false;						// flaga okreslajaca wystapienie dodatnich wartosci
-	int is = 0;					// indeks sum
+	int is = 0, nsum = 0, it = 0;				// indeks sum, nowe sumy, glowny indeks tablicy (powstaly po odcieciu elementow ujemnych ale NIE podsum ujemnych)
 	
 	for(int i=0,j=0; j < z->n; j++)		// i - poczatek, j - koniec
 	{
@@ -118,13 +118,7 @@ void max_zestawu(zestaw *z)
 		{
 			if(z->dane[j] < 0)		// element ujemny (jedynie w przypadku wczesniejszych wartosci dodatnich)
 			{
-				is++;				// stworzenie kolejnej podsumy (aktualnie liczona, do wystapienia wartosci ujemnej)
-				tab_sum[is].i = i;
-				tab_sum[is].j = j;	// inicjalizacja indeksow nowej podsumy
-				tab_sum[is].D = tab_sum[is-1].D;	// kopiowanie sumy elementow starej podsumy
-				tab_sum[is].U = tab_sum[is-1].U;
-				tab_sum[is].stop = true;	// blokada, koniec liczenia tej podsumy
-
+				nsum = 0;		// zero nowo stworzonych sum
 				for(int tmp_is=is; tmp_is >= 0; tmp_is--)
 				{
 					#ifdef __DEBUG
@@ -133,7 +127,14 @@ void max_zestawu(zestaw *z)
 
 					if(!tab_sum[tmp_is].stop)		// jesli nie zakonczylismy liczenia tej podsumy
 					{
-						tab_sum[tmp_is].U += z->dane[j];	// dodanie elementu do ujemnych w kazdej utworzonej podsumie
+						nsum++;				// stworzenie kolejnej podsumy, kopia aktualnie liczonej, z blokada
+						tab_sum[is+nsum].i = i;
+						tab_sum[is+nsum].j = j-1;	// inicjalizacja indeksow nowej podsumy
+						tab_sum[is+nsum].D = tab_sum[tmp_is].D;	// kopiowanie sumy elementow starej podsumy
+						tab_sum[is+nsum].U = tab_sum[tmp_is].U;
+						tab_sum[is+nsum].stop = true;	// blokada, koniec liczenia tej podsumy
+
+						tab_sum[tmp_is].U += z->dane[j];	// dodanie elementu do ujemnych w kazdej liczonej podsumie
 						tab_sum[tmp_is].j = j;				// aktualizacja indeksow
 					}
 
@@ -142,7 +143,7 @@ void max_zestawu(zestaw *z)
 					#endif
 				}
 
-				is++;				// stworzenie kolejnej podsumy (czystej)
+				is += nsum+1;			// dodanie ilosci stworzonych kopii i stworzenie kolejnej podsumy (czystej)
 				tab_sum[is].i = j+1;
 				tab_sum[is].j = j+1;	// inicjalizacja indeksow nowej podsumy
 
@@ -163,7 +164,11 @@ void max_zestawu(zestaw *z)
 				dodatnie = true;		// ustawiam flage wystapienia dodatnich
 			}
 		}
-		else i++;	// odciecie ujemnej wartosci z poczatku tablicy
+		else
+		{
+			i++;	// odciecie ujemnej wartosci z poczatku tablicy
+			it++;
+		}
 
 		if(S(tab_sum[0].D, tab_sum[0].U) < 0)			// tab_sum[0] to zawsze suma calej dotychczas przetworzonej tablicy (pomijajac sumy ujemne na poczatku)
 		{
@@ -175,8 +180,16 @@ void max_zestawu(zestaw *z)
 			dodatnie = false;		// po odcieciu mozemy uznac ze nie napotkalismy wartosci dodatnich
 			for(int tmp_is=is; tmp_is >= 0; tmp_is--)
 			{
-				for(int tmp_i=i-1; tmp_i >= 0; tmp_i--)		// usuniecie ujemnej podsumy z kazdej podsumy ktora ja zawiera
+				#ifdef __DEBUG
+					printf("DEBUG: Petla zewnetrzna: is = %d;\ttmp_is = %d\n", is, tmp_is);
+				#endif
+
+				for(int tmp_i=i-1; tmp_i >= it; tmp_i--)		// usuniecie ujemnej podsumy z kazdej podsumy ktora ja zawiera
 				{
+					#ifdef __DEBUG
+						printf("DEBUG: Petla wewnetrzna: i = %d;\ttmp_i = %d\n", i, tmp_i);
+					#endif
+
 					if(tmp_i >= tab_sum[tmp_is].i && !tab_sum[tmp_is].stop)
 					{
 						#ifdef __DEBUG
@@ -191,10 +204,9 @@ void max_zestawu(zestaw *z)
 						#endif
 					}
 				}
-				tab_sum[tmp_is].i = i;				// aktualizacja indeksow
+				if(!tab_sum[tmp_is].stop) tab_sum[tmp_is].i = i;		// aktualizacja indeksow
 			}
 		}
-
 	}
 
 	z->max = max_podsuma(tab_sum, is);		// wybor maksymalnej podsumy
