@@ -103,8 +103,8 @@ void max_zestawu(zestaw *z)
 		printf("DEBUG: Zestaw: %d;%d;%p\n", z->il_zest, z->n, z->dane);
 	#endif
 
-	suma *tab_sum = (suma*)malloc((2*z->n+1)*sizeof(suma));	// moze byc max 2*n+1 podsum
-	memset(tab_sum, 0, (2*z->n+1)*sizeof(suma));		// zerowanie pamieci, zeby nie musiec inicjalizowac D, U i stop w kazdej podsumie
+	suma *tab_sum = (suma*)malloc((z->n*z->n+1)*sizeof(suma));	// moze byc max n^2+1 podsum
+	memset(tab_sum, 0, (z->n*z->n+1)*sizeof(suma));		// zerowanie pamieci, zeby nie musiec inicjalizowac D, U i stop w kazdej podsumie
 	bool dodatnie = false;						// flaga okreslajaca wystapienie dodatnich wartosci
 	int is = 0, nsum = 0, it = 0;				// indeks sum, nowe sumy, glowny indeks tablicy (powstaly po odcieciu elementow ujemnych ale NIE podsum ujemnych)
 	
@@ -166,7 +166,7 @@ void max_zestawu(zestaw *z)
 		}
 		else
 		{
-			i++;	// odciecie ujemnej wartosci z poczatku tablicy
+			tab_sum[0].i = ++i;	// odciecie ujemnej wartosci z poczatku tablicy i aktualizacja indeksu (elementy z poczatku mozna odcinac tylko gdy istnieje jedynie suma 0)
 			it++;
 		}
 
@@ -176,8 +176,7 @@ void max_zestawu(zestaw *z)
 				printf("DEBUG: Ujemna podsuma @ %d\n", j);
 			#endif
 			
-			i=j+1;		// odciecie ujemnej podsumy z poczatku tablicy
-			dodatnie = false;		// po odcieciu mozemy uznac ze nie napotkalismy wartosci dodatnich
+			i=j+1;		// odciecie ujemnej podsumy z poczatku tablicy	
 			for(int tmp_is=is; tmp_is >= 0; tmp_is--)
 			{
 				#ifdef __DEBUG
@@ -204,7 +203,8 @@ void max_zestawu(zestaw *z)
 						#endif
 					}
 				}
-				if(!tab_sum[tmp_is].stop) tab_sum[tmp_is].i = i;		// aktualizacja indeksow
+				if(!tab_sum[tmp_is].stop) tab_sum[tmp_is].i = i;		// aktualizacja indeksow w sumach ktore mozemy zmienic
+				dodatnie = false;			// po odcieciu mozemy uznac ze nie napotkalismy wartosci dodatnich
 			}
 		}
 	}
