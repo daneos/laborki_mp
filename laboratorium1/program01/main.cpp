@@ -75,6 +75,11 @@ inline int S(int D, int U)	// suma
 	return (3*D)+(2*U);
 }
 
+inline int S2(suma *s)	// suma, wersja druga
+{
+	return (3*s->D)+(2*s->U);
+}
+
 
 suma max_podsuma(suma *ts, int is)
 {
@@ -86,6 +91,7 @@ suma max_podsuma(suma *ts, int is)
 			printf("DEBUG: Suma: %d: i=%d, j=%d, s=%d\n", i, ts[i].i, ts[i].j, S(ts[i].D, ts[i].U));
 		#endif
 
+		// FIXME: Ten warunek prawdopodobnie nie jest potrzebny
 		if(ts[i].i <= ts[i].j)		// jesli i>j to znaczy ze podsuma zostala w calosci odcieta jako ujemna
 		{
 			ts[i].s = S(ts[i].D, ts[i].U);	// liczenie sumy
@@ -94,7 +100,13 @@ suma max_podsuma(suma *ts, int is)
 		}
 	}
 
+	// FIXME: Sprawdzenie czy w ogole wystapily jakies wartosci dodatnie
 	return max;
+}
+
+inline void nop(void)	// no operation - zeby zadowolic kompilator...
+{
+	return;
 }
 
 void max_zestawu(zestaw *z)
@@ -103,13 +115,43 @@ void max_zestawu(zestaw *z)
 		printf("DEBUG: Zestaw: %d;%d;%p\n", z->il_zest, z->n, z->dane);
 	#endif
 
+		/*
 	suma *tab_sum = (suma*)malloc((z->n*z->n+1)*sizeof(suma));	// moze byc max n^2+1 podsum
 	memset(tab_sum, 0, (z->n*z->n+1)*sizeof(suma));		// zerowanie pamieci, zeby nie musiec inicjalizowac D, U i stop w kazdej podsumie
 	bool dodatnie = false;						// flaga okreslajaca wystapienie dodatnich wartosci
 	int is = 0, nsum = 0, it = 0;				// indeks sum, nowe sumy, glowny indeks tablicy (powstaly po odcieciu elementow ujemnych ale NIE podsum ujemnych)
+		*/
+
+	suma akt, max;		// aktualna i maksymalna suma
+	memset(&akt, 0, sizeof(suma));
+	max = akt;
 	
 	for(int i=0,j=0; j < z->n; j++)		// i - poczatek, j - koniec
 	{
+		z->dane[j] >= 0 ? akt.D += z->dane[j] : akt.U += z->dane[j];
+		akt.j = j;
+		if(S2(&akt) > S2(&max))
+			max = akt;
+		else if(S2(&akt) < 0)
+		{
+			i = j+1;
+			akt.i = i;
+			akt.D = akt.U = 0;
+		}
+	}
+	max.s = S2(&max);
+	z->max = max;
+
+
+
+
+
+
+
+
+
+
+		/*
 		#ifdef __DEBUG
 			printf("DEBUG: i = %d;\tj = %d;\tis = %d;\telement = %d\n", i, j, is, z->dane[j]);
 		#endif
@@ -164,7 +206,7 @@ void max_zestawu(zestaw *z)
 				dodatnie = true;		// ustawiam flage wystapienia dodatnich
 			}
 		}
-		else
+		else		// element ujemny, bez poprzedzajacych wartosci dodatnich
 		{
 			tab_sum[0].i = ++i;	// odciecie ujemnej wartosci z poczatku tablicy i aktualizacja indeksu (elementy z poczatku mozna odcinac tylko gdy istnieje jedynie suma 0)
 			it++;
@@ -208,9 +250,12 @@ void max_zestawu(zestaw *z)
 			}
 		}
 	}
+	*/
 
+		/*
 	z->max = max_podsuma(tab_sum, is);		// wybor maksymalnej podsumy
 	free(tab_sum);					// zwolnienie tablicy podsum
+		*/
 }
 
 void wyjscie(zestaw *z)
