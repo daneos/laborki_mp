@@ -5,7 +5,7 @@
  */
 
 #include <stdio.h>
-#include <stdlib.h>	// malloc
+#include <stdlib.h>	// malloc,free
 #include <string.h> // memset
 
 typedef struct _suma {
@@ -13,15 +13,12 @@ typedef struct _suma {
 	int U;			// suma ujemnych
 	int i;			// indeks od
 	int j;			// indeks do
-	int s;			// suma przedzialu
 } suma;
 
 typedef struct _zestaw {
-	//--------- dane wejsciowe zestawu
 	int il_zest;	// ilosc zestawow, taka sama w kazdym zestawie
 	int n;			// ilosc elementow tablicy
 	int *dane;		// tablica
-	//--------- dane wyjsciowe zestawu
 	suma max;		// maksymalna suma zestawu
 } zestaw;
 
@@ -57,11 +54,10 @@ inline int S(suma *s)	// suma
 
 void max_zestawu(zestaw *z)
 {
-	suma akt, max;		// aktualna i maksymalna suma
-	memset(&akt, 0, sizeof(suma));
-	max = akt;			// zerowanie zmiennych
+	suma akt, max;			// aktualna i maksymalna suma
+	memset(&akt, 0, sizeof(suma));		// zerowanie akt
 	
-	for(; akt.j < z->n; akt.j++)
+	for(max = akt; akt.j < z->n; akt.j++)
 	{
 		z->dane[akt.j] >= 0 ? akt.D += z->dane[akt.j] : akt.U += z->dane[akt.j];
 		if(S(&akt) > S(&max)) max = akt;		// jesli aktualna suma jest wieksza od maksymalnej, nadpisz
@@ -71,13 +67,12 @@ void max_zestawu(zestaw *z)
 			akt.D = akt.U = 0;		// wyzeruj sume
 		}
 	}
-	max.s = S(&max);		// zapisz sume ostateczna do struktury wyjsciowej
-	z->max = max;
+	z->max = max;			// zapisz sume ostateczna do struktury wyjsciowej
 }
 
 void wyjscie(zestaw *z)
 {
-	printf("%d %d %d\n", z->max.i, z->max.j, z->max.s);
+	printf("%d %d %d\n", z->max.i, z->max.j, S(&z->max));
 }
 
 int main(void)
