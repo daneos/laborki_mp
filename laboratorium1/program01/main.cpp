@@ -16,29 +16,26 @@ typedef struct _suma {
 } suma;
 
 typedef struct _zestaw {
-	int il_zest;	// ilosc zestawow, taka sama w kazdym zestawie
 	int n;			// ilosc elementow tablicy
 	int *dane;		// tablica
 	suma max;		// maksymalna suma zestawu
 } zestaw;
 
-zestaw *wejscie(void)
+zestaw *wejscie(int *z)
 {
-	int z;					// bez inicjalizacji, nastepna instrukcja nadpisuje
-	do scanf("%d", &z); while(z <= 0);		// liczba zestawow
+	do scanf("%d", z); while(*z <= 0);		// liczba zestawow
 
-	zestaw *tz = (zestaw*)malloc(z*sizeof(zestaw)); // rezerwacja pamieci - tablica zestawow
-	for(int i=0; i<z; i++)
+	zestaw *tz = (zestaw*)malloc((*z)*sizeof(zestaw)); // rezerwacja pamieci - tablica zestawow
+	for(int i=0; i<*z; i++)
 	{
-		int n;					// j.w.
+		int n = 0;
 		do scanf("%d", &n); while(n < 1 || n > 1000000);	// liczba elementow
 
-		tz[i].il_zest = z;
 		tz[i].n = n;
 		tz[i].dane = (int*)malloc(n*sizeof(int)); // rezerwacja pamieci - tablica danych w zestawie
 		for(int ie=0; ie<n; ie++)
 		{
-			int element;					// j.w.
+			int element = 0;
 			do scanf("%d", &element); while(element < -2000 || element > 2000);		// element
 
 			tz[i].dane[ie] = element;
@@ -67,7 +64,7 @@ void max_zestawu(zestaw *z)
 			akt.D = akt.U = 0;		// wyzeruj sume
 		}
 	}
-	z->max = max;			// zapisz sume ostateczna do struktury wyjsciowej
+	z->max = max;			// zapisz sume maksymalna do struktury wyjsciowej
 }
 
 void wyjscie(zestaw *z)
@@ -77,8 +74,9 @@ void wyjscie(zestaw *z)
 
 int main(void)
 {
-	zestaw *Z = wejscie();			// wczytanie zestawow 
-	for(int iz=0; iz < Z->il_zest; iz++)
+	int il_zest = 0;
+	zestaw *Z = wejscie(&il_zest);	// wczytanie zestawow 
+	for(int iz=0; iz < il_zest; iz++)
 	{
 		max_zestawu(&Z[iz]);		// wyznaczanie maksymalnej sumy dla kazdego zestawu
 		wyjscie(&Z[iz]);			// wypisanie rozwiazania zestawu
