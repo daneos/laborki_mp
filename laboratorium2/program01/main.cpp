@@ -13,9 +13,26 @@ typedef struct _zestaw {
 	long *dane;		// tablica
 } zestaw;
 
-int ile(long sz, long *t)
+int ile(long sz, zestaw *z, int i, int j)
 {
-	return 7;	// test
+	int ilosc = 0;
+	int srodek = i+(j-i)/2;
+
+	//printf("sz = %d;\ti = %d\tj = %d;\tsrodek = %d\n", sz, i, j, srodek);
+
+	//if(z->dane[j] < sz) return ilosc;		// jesli na koncu jest wartosc mniejsza niz szukana, to wczesniej tez na pewno jej nie bedzie
+	//if(z->dane[i] > sz) return ilosc;		// to samo na poczatku
+	if(srodek == i || srodek == j) return ilosc;	// szukanej wartosci nie ma w przedziale
+	if(z->dane[srodek] > sz) return ile(sz, z, i, srodek);	// dzielenie tablicy na pol
+	if(z->dane[srodek] < sz) return ile(sz, z, srodek, j);
+	if(z->dane[srodek] == sz)
+	{
+		ilosc++;
+		for(int is=srodek-1; z->dane[is] == sz && is >= 0; is--) ilosc++;		// sprawdzanie sasiednich elementow w lewo
+		for(int is=srodek+1; z->dane[is] == sz && is <= z->n; is++) ilosc++;		// sprawdzanie w prawo
+	}
+	
+	return ilosc;
 }
 
 void blad_danych(void)
@@ -24,7 +41,7 @@ void blad_danych(void)
 	exit(1);
 }
 
-void *czytaj_i_licz(FILE *fin, FILE *fout)
+void czytaj_i_licz(FILE *fin, FILE *fout)
 {
 	zestaw *Z = (zestaw*)malloc(sizeof(zestaw));	// rezerwacja pamieci na zestaw
 	
@@ -50,7 +67,7 @@ void *czytaj_i_licz(FILE *fin, FILE *fout)
 		{
 			long szukana = 0;
 			fscanf(fin, "%ld", &szukana);
-			fprintf(fout, "%ld %d\n", szukana, ile(szukana, Z->dane));	// wyjscie i obliczenia
+			fprintf(fout, "%ld %d\n", szukana, ile(szukana, Z, 0, Z->n-1));	// wyjscie i obliczenia
 		}
 	}
 	free(Z->dane);
