@@ -18,21 +18,31 @@ int ile(long sz, zestaw *z, int i, int j)
 	int ilosc = 0;
 	int srodek = i+(j-i)/2;
 
-	//printf("sz = %d;\ti = %d\tj = %d;\tsrodek = %d\n", sz, i, j, srodek);
+	printf("sz = %d;\ti = %d\tj = %d;\tsrodek = %d\n", sz, i, j, srodek);
 
 	//if(z->dane[j] < sz) return ilosc;		// jesli na koncu jest wartosc mniejsza niz szukana, to wczesniej tez na pewno jej nie bedzie
 	//if(z->dane[i] > sz) return ilosc;		// to samo na poczatku
-	if(srodek == i || srodek == j) return ilosc;	// szukanej wartosci nie ma w przedziale
-	if(z->dane[srodek] > sz) return ile(sz, z, i, srodek);	// dzielenie tablicy na pol
-	if(z->dane[srodek] < sz) return ile(sz, z, srodek, j);
+	//if(srodek == i) if(srodek+1 <= z->n) srodek++;
+	//if(srodek == j) if(srodek-1 >= 0) srodek--;
+	if(srodek == i) srodek = j;		// eliminacja blokowania na pierwszym i ostatnim elemencie
+	else if(srodek == j) srodek = i;
+	
 	if(z->dane[srodek] == sz)
 	{
 		ilosc++;
 		for(int is=srodek-1; z->dane[is] == sz && is >= 0; is--) ilosc++;		// sprawdzanie sasiednich elementow w lewo
 		for(int is=srodek+1; z->dane[is] == sz && is <= z->n; is++) ilosc++;		// sprawdzanie w prawo
+		return ilosc;
 	}
-	
-	return ilosc;
+	else
+	{
+		if(srodek == i || srodek == j) return ilosc;		// szukanej nie ma w tablicy
+		else
+		{
+			if(z->dane[srodek] > sz) return ile(sz, z, i, srodek);	// dzielenie tablicy na pol
+			if(z->dane[srodek] < sz) return ile(sz, z, srodek, j);
+		}
+	}
 }
 
 void blad_danych(void)
@@ -43,35 +53,34 @@ void blad_danych(void)
 
 void czytaj_i_licz(FILE *fin, FILE *fout)
 {
-	zestaw *Z = (zestaw*)malloc(sizeof(zestaw));	// rezerwacja pamieci na zestaw
-	
+	zestaw Z;
 	int z = 0;
+
 	fscanf(fin, "%d", &z);		// ilosc zestawow
 	if(z < 0) blad_danych();
 
 	for(int iz=0; iz < z; iz++)
 	{
-		fscanf(fin, "%d", &(Z->n));	// ilosc elementow
-		if(Z->n < 1 || Z->n > 1000000) blad_danych();
+		fscanf(fin, "%d", &(Z.n));	// ilosc elementow
+		if(Z.n < 1 || Z.n > 1000000) blad_danych();
 
-		Z->dane = (long*)malloc(Z->n*sizeof(long));	// alokacja tablicy
-		memset(Z->dane, 0, Z->n*sizeof(long));		// zerowanie tablicy
+		Z.dane = (long*)malloc(Z.n*sizeof(long));	// alokacja tablicy
+		memset(Z.dane, 0, Z.n*sizeof(long));		// zerowanie tablicy
 
-		for(int ie=0; ie < Z->n; ie++) fscanf(fin, "%ld", &(Z->dane[ie]));	// element
+		for(int ie=0; ie < Z.n; ie++) fscanf(fin, "%ld", &(Z.dane[ie]));	// element
 
 		int k = 0;
 		fscanf(fin, "%d", &k);	// ilosc szukanych
-		if(k < 1 || k > Z->n) blad_danych();
+		if(k < 1 || k > Z.n) blad_danych();
 
 		for(int is=0; is < k; is++)
 		{
 			long szukana = 0;
 			fscanf(fin, "%ld", &szukana);
-			fprintf(fout, "%ld %d\n", szukana, ile(szukana, Z, 0, Z->n-1));	// wyjscie i obliczenia
+			fprintf(fout, "%ld %d\n", szukana, ile(szukana, &Z, 0, Z.n-1));	// wyjscie i obliczenia
 		}
+		free(Z.dane);	// zwolnienie pamieci
 	}
-	free(Z->dane);
-	free(Z);	// zwolnienie pamieci
 }
 
 
