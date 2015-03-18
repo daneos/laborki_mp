@@ -27,7 +27,7 @@ int ile(long sz, zestaw *z, int i, int j)
 	}
 	else
 	{
-		if(srodek == i && srodek == j) return ilosc;
+		if((srodek == i && srodek == j) || i > j) return ilosc;		// szukanej nie ma w tablicy
 		if(z->dane[srodek] > sz) return ile(sz, z, i, srodek-1);	// dzielenie tablicy na pol
 		if(z->dane[srodek] < sz) return ile(sz, z, srodek+1, j);
 	}
@@ -74,7 +74,7 @@ void czytaj_i_licz(FILE *fin, FILE *fout)
 
 int main(int argc, char *argv[])
 {
-	if(argc < 2)
+	if(argc < 2)	// nie podano nazwy pliku wejsciowego
 	{
 		printf("Uzycie: %s <nazwa_pliku_wej> [nazwa_pliku_wyj]\n", argv[0]);
 		exit(1);
