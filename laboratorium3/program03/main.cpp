@@ -8,10 +8,11 @@
 #include <stdlib.h>	// malloc,free
 #include <string.h> // memset
 
-void wypisz(int *t, int n, FILE *f)
+void wypisz(int *s, int *r, int n, FILE *f)
 {
-	for(int i=0; i < n; i++)
-		fprintf(f, "%d", t[i]);
+	for(int i=0, suma=0; s[i] != 0; i++)
+		for(int iw=0; iw < r[i] && suma < n; iw++, suma += s[i])	// algorytm zostawia "latajace" jedynki na koncu tablicy
+			fprintf(f, "%s%d", i==0&&iw==0?"":"+", s[i]);			// z tego powodu wypisywanie musi sie zakonczyc po osiagnieciu zadanej sumy
 	fprintf(f, "\n");	// zakoncz wiersz
 }
 
@@ -19,14 +20,14 @@ void oblicz(int n, FILE *fout)
 {
 	int *S = (int*)malloc(n*sizeof(int));
 	int *R = (int*)malloc(n*sizeof(int));		// rezerwacja pamieci
+	memset(S, 0, n*sizeof(int));
+	memset(R, 0, n*sizeof(int));				// zerowanie pamieci
 
 	//-------------------------------------------------------------------------
 	S[0]=n;		// indeksy
 	R[0]=1;		// j.w.
 	int d=0;	// j.w.
-	wypisz(S, n, fout);
-	wypisz(R, n, fout);
-	printf("\n");
+	wypisz(S, R, n, fout);
 	while(S[0] > 1)	// j.w.
 	{
 		int sum=0;
@@ -44,9 +45,7 @@ void oblicz(int n, FILE *fout)
 			S[d] = l;
 			R[d] = 1;
 		}
-		wypisz(S, n, fout);
-		wypisz(R, n, fout);
-		printf("\n");
+		wypisz(S, R, n, fout);
 	}
 	//-------------------------------------------------------------------------
 
