@@ -1,0 +1,79 @@
+/*
+ * Metody Programowania - Laboratorium 3 - Program 03
+ * Grzegorz Kowalski, 12i
+ * wersja 1 | 03.2015
+ */
+
+#include <stdio.h>
+#include <stdlib.h>	// malloc,free
+#include <string.h> // memset
+
+void wypisz(int *t, int n, FILE *f)
+{
+	for(int i=0; i < n; i++)
+		fprintf(f, "%d", t[i]);
+	fprintf(f, "\n");	// zakoncz wiersz
+}
+
+void oblicz(int n, FILE *fout)
+{
+	int *S = (int*)malloc(n*sizeof(int));
+	int *R = (int*)malloc(n*sizeof(int));		// rezerwacja pamieci
+
+	//-------------------------------------------------------------------------
+	S[0]=n;		// indeksy
+	R[0]=1;		// j.w.
+	int d=0;	// j.w.
+	wypisz(S, n, fout);
+	wypisz(R, n, fout);
+	printf("\n");
+	while(S[0] > 1)	// j.w.
+	{
+		int sum=0;
+		if(S[d] == 1) sum = sum + R[d--];
+		sum += S[d];
+		R[d] -= 1;
+		int l = S[d] - 1;
+		if(R[d] > 0) d++;
+		S[d] = l;
+		R[d] = sum / l;
+		l = sum % l;
+		if(l != 0)
+		{
+			d++;
+			S[d] = l;
+			R[d] = 1;
+		}
+		wypisz(S, n, fout);
+		wypisz(R, n, fout);
+		printf("\n");
+	}
+	//-------------------------------------------------------------------------
+
+	free(S);
+	free(R);	// zwolnienie pamieci
+}
+
+int main(int argc, char *argv[])
+{
+	if(argc < 2)	// nie podano n
+	{
+		printf("Uzycie: %s <n> [nazwa_pliku_wyj]\n", argv[0]);
+		exit(1);
+	}
+
+	int n = atoi(argv[1]);
+
+	FILE *out;
+	if(argc < 3) out = stdout;	// jesli nie podano nazwy pliku wyjsciowego, wypisz na ekran
+	else if((out = fopen(argv[2], "w")) == NULL)	// otwarcie tylko do zapisu
+	{
+		perror("main()/fopen():out");
+		exit(1);
+	}
+
+	oblicz(n, out);		// obliczenia i wyjscie
+
+	fclose(out);	// zamkniecie pliku
+	return 0;
+}
