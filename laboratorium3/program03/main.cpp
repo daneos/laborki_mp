@@ -10,7 +10,7 @@
 
 void wypisz(int *s, int *r, int n, FILE *f)
 {
-	for(int i=0, suma=0; s[i] != 0; i++)
+	for(int i=0, suma=0; s[i] != 0; i++)		// malo to wszystko eleganckie, ale algorytm jest zgodny z pseudokodem
 		for(int iw=0; iw < r[i] && suma < n; iw++, suma += s[i])	// algorytm zostawia "latajace" jedynki na koncu tablicy
 			fprintf(f, "%s%d", i==0&&iw==0?"":"+", s[i]);			// z tego powodu wypisywanie musi sie zakonczyc po osiagnieciu zadanej sumy
 	fprintf(f, "\n");	// zakoncz wiersz
@@ -31,17 +31,17 @@ void oblicz(int n, FILE *fout)
 	while(S[0] > 1)	// j.w.
 	{
 		int sum=0;
-		if(S[d] == 1) sum = sum + R[d--];
-		sum += S[d];
-		R[d] -= 1;
+		if(S[d] == 1) sum = sum + R[d--]; // zamiast d:=d-1;
+		sum += S[d]; // zamiast sum:=sum+S[d];
+		R[d] -= 1;	// zamiast R[d]:=R[d]-1;
 		int l = S[d] - 1;
-		if(R[d] > 0) d++;
+		if(R[d] > 0) d++;	// zamiast d:=d-1;
 		S[d] = l;
 		R[d] = sum / l;
 		l = sum % l;
 		if(l != 0)
 		{
-			d++;
+			d++;	// zamiast d:=d+1;
 			S[d] = l;
 			R[d] = 1;
 		}

@@ -25,7 +25,7 @@ void oblicz(int n, int k, FILE *fout)
 	while(p >= 0)	// warunek zmieniony ze wzgledu na indeksy
 	{
 		wypisz(A, k+1, fout);	// liczba elementow dla wypisywania
-		if(A[k] == n) p=p-1;
+		if(A[k] == n) p--;	// zamiast p:=p-1;
 		else p=k;
 		if(p >= 0)	// warunek zmieniony ze wzgledu na indeksy
 			for(int i=k; i >= p; i--) A[i] = A[p]+i-p+1;
