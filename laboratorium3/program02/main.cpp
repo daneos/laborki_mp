@@ -52,7 +52,7 @@ int main(int argc, char *argv[])
 
 	FILE *out;
 	if(argc < 4) out = stdout;	// jesli nie podano nazwy pliku wyjsciowego, wypisz na ekran
-	else if((out = fopen(argv[2], "w")) == NULL)	// otwarcie tylko do zapisu
+	else if((out = fopen(argv[3], "w")) == NULL)	// otwarcie tylko do zapisu
 	{
 		perror("main()/fopen():out");
 		exit(1);
