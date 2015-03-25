@@ -5,23 +5,24 @@
  */
 
 #include <stdio.h>
-#include <stdlib.h>
+#include <stdlib.h>	// exit,atoi
 
-void move(char A, char B)
+void move(char A, char B, int *i)
 {
-	printf("Przenieś z %c na %c.\n", A, B);
+	printf("%d: Przenies z %c na %c.\n", ++(*i), A, B);
 }
 
-void hanoi(char A, char B, char C, int n)
+void hanoi(char A, char B, char C, int n, int *i)
 {
-	if(n == 1) move(A, C);
+	//-------------------------------------------------------------------------
+	if(n == 1) move(A, C, i);
 	else
 	{
-		hanoi(A, C, B, n-1);
-		move(A, C);
-		hanoi(B, A, C, n-1);
+		hanoi(A, C, B, n-1, i);
+		move(A, C, i);
+		hanoi(B, A, C, n-1, i);
 	}
-
+	//-------------------------------------------------------------------------
 }
 
 int main(int argc, char *argv[])
@@ -32,7 +33,9 @@ int main(int argc, char *argv[])
 		exit(1);
 	}
 
-	hanoi('A', 'B', 'C', atoi(argv[1]));
-	printf("Gotowe!\n");
+	int krok = 0;
+	hanoi('A', 'B', 'C', atoi(argv[1]), &krok);
+	printf("Gotowe w %d krokach!\n", krok);
+
 	return 0;
 }
