@@ -11,7 +11,7 @@
 
 typedef struct _statystyka {
 	int n;			// ilosc elementow
-	int por;		// ilosc porownan
+	unsigned long por;		// ilosc porownan
 	double czas;	// czas obliczen
 } statystyka;
 
@@ -37,7 +37,7 @@ void wypisz(long *T, int n, FILE *fout)
 
 void wypisz_stat(statystyka *S)
 {
-	printf("%d,%d,%.f\n", S->n, S->por, S->czas);
+	printf("%16d | %16ld | %16.f |\n", S->n, S->por, S->czas);
 }
 
 void blad_danych(void)

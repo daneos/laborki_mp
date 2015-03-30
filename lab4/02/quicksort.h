@@ -15,9 +15,9 @@ void zamien(long *T, int i, int j)
 	T[j] = tmp;
 }
 
-int dziel(long *T, int p, int r, int *q)
+unsigned long dziel(long *T, int p, int r, int *q)
 {
-	int por = 0;
+	unsigned long por = 0;
 	int ep = T[p];					// wartosc elementu w punkcie podzialu
 
 	int i = p-1;
@@ -35,14 +35,14 @@ int dziel(long *T, int p, int r, int *q)
 	}
 }
 
-int _quicksort(long *T, int p, int r)
+unsigned long _quicksort(long *T, int p, int r)
 {
-	int por = 0;	// ilosc porownan
+	unsigned long por = 0;	// ilosc porownan
 	if(p < r)
 	{
 		int q;
 		por += dziel(T, p, r, &q);		// podziel tablice
-		por += _quicksort(T, p, q-1);		
+		por += _quicksort(T, p, q);		
 		por += _quicksort(T, q+1, r);	// wywolania rekurencyjne
 	}
 	return por;
