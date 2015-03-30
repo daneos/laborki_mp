@@ -8,11 +8,6 @@
 #ifndef __QUICKSORT_H__
 #define __QUICKSORT_H__
 
-int podzial(long *T, int p, int r)
-{
-	return (p+r)/2;
-}
-
 void zamien(long *T, int i, int j)
 {
 	long tmp = T[i];
