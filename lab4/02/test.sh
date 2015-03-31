@@ -46,6 +46,8 @@ done
 # testowanie programu na wygenerowanych zestawach danych oraz generowanie tabelki
 i=0
 IFS=''				# zachowanie bialych znakow w danych wyjsciowych programu
+ULIMIT=`ulimit -s`	# zapisanie ustawionego limitu wielkosci stosu programu
+ulimit -s unlimited	# zdjecie ograniczenia rozmiaru stosu
 $PROGRAM $PLIK /dev/null | {	# uruchomienie programu i interpretacja danych
 	while read -r l; do
 		WYJSCIE[$i]="$l"
@@ -66,4 +68,5 @@ $PROGRAM $PLIK /dev/null | {	# uruchomienie programu i interpretacja danych
 	echo "+------------------+------------------+------------------+------------------+" >> "$1"
 }
 
+ulimit -s $ULIMIT	# przywrocenie limitu stosu
 rm $PLIK		# usuniecie pliku z zestawami

@@ -11,7 +11,7 @@
 
 typedef struct _statystyka {
 	int n;			// ilosc elementow
-	unsigned long por;		// ilosc porownan
+	unsigned long long por;		// ilosc porownan, w przypadkach pesymistycznych jest tak absurdalnie olbrzymia ze konieczne stalo sie wykorzystanie na prawde dlugiego typu danych
 	double czas;	// czas obliczen
 } statystyka;
 
@@ -19,11 +19,11 @@ statystyka quicksort(long *T, int n)
 {
 	statystyka S;
 	S.n = n;
-	time_t start = time(NULL);
+	time_t start = time(NULL);		// poczatek mierzenia czasu
 
 	S.por = _quicksort(T, 0, n-1);		// rzeczywiste sortowanie
 
-	time_t stop = time(NULL);
+	time_t stop = time(NULL);		// koniec mierzenia czasu
 	S.czas = difftime(stop, start);	// przenosnosc, przenosnosc i jeszcze raz przenosnosc
 	return S;
 }
@@ -37,7 +37,7 @@ void wypisz(long *T, int n, FILE *fout)
 
 void wypisz_stat(statystyka *S)
 {
-	printf("%16d | %16ld | %16.f |\n", S->n, S->por, S->czas);
+	printf("%16d | %16llu | %16.f |\n", S->n, S->por, S->czas);
 }
 
 void blad_danych(void)
