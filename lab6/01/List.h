@@ -2,7 +2,7 @@
  * Metody Programowania - Laboratorium 6 - Program 01
  * Implementacja klas: lista
  * Grzegorz Kowalski, 12i
- * wersja 1 | 04.2015
+ * wersja 2 | 04.2015
  */
 
 #include <stdio.h>
@@ -10,12 +10,12 @@
 #ifndef __LIST_H__
 #define __LIST_H__
 
-// Definicje
 namespace List
 {
 	template <class T>
 	class List;
 
+	// Definicje
 	template <class T>
 	class Element
 	{
@@ -38,6 +38,7 @@ namespace List
 	private:
 		Element<T> *root;
 		int len;
+		Element<T> *cur;
 
 	public:
 		List();
@@ -49,7 +50,13 @@ namespace List
 		int appendAfter(Element<T> *e, int i);
 		int prependBefore(Element<T> *e, int i);
 		int remove(int i);
+		void reset(void);
+		Element<T> *current(void);
+		Element<T> *next(void);
 		int operator+=(Element<T> *e);
+		Element<T> *operator[](int i);
+		operator bool();
+		bool operator!();
 	};
 
 	// Implementacja
@@ -159,9 +166,46 @@ namespace List
 	}
 
 	template <class T>
+	void List<T>::reset(void)
+	{
+		this->cur = this->root;
+	}
+
+	template <class T>
+	Element<T> *List<T>::current(void)
+	{
+		return this->cur;
+	}
+
+	template <class T>
+	Element<T> *List<T>::next(void)
+	{
+		this->cur = this->cur->next();
+		return this->current();
+	}
+
+	template <class T>
 	int List<T>::operator+=(Element<T> *e)
 	{
 		return this->append(e);
+	}
+
+	template <class T>
+	Element<T> *List<T>::operator[](int i)
+	{
+		return this->get(i);
+	}
+
+	template <class T>
+	List<T>::operator bool()
+	{
+		return (this->len > 0);
+	}
+
+	template <class T>
+	bool List<T>::operator!()
+	{
+		return (this->len <= 0);
 	}
 }
 
