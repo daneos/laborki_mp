@@ -68,6 +68,26 @@ void macierz(List::List<krawedz> *G, int iw, FILE *fout)
 	free(M);	// zwolnienie macierzy
 }
 
+void lista(List::List<krawedz> *G, int iw, FILE *fout)
+{
+	List::List<int> *L = (List::List<int>*)malloc(iw*sizeof(List::List<int>));
+
+	for(G->reset(); G->current(); G->next())
+	{
+		L[G->current()->getData()->v-1] += new List::Element<int>(G->current()->getData()->w); // dodanie do listy v wierzcholka w
+		L[G->current()->getData()->w-1] += new List::Element<int>(G->current()->getData()->v); // dodanie do listy w wierzcholka v
+	}
+
+	for(int i=0; i<iw; i++)
+	{
+		printf("%d:\t", i+1);
+		for(L[i].reset(); L[i].current(); L[i].next())
+			printf("%d%c", *L[i].current()->getData(), L[i].current()->next()?',':' ');
+		printf("\n");
+	}
+	free(L);	// zwolnienie tablicy list
+}
+
 int main(int argc, char *argv[])
 {
 	if(argc < 2)	// nie podano nazwy pliku wejsciowego
@@ -92,8 +112,10 @@ int main(int argc, char *argv[])
 
 	List::List<krawedz> L;
 	int iw = czytaj_graf(in, &L);	// odczyt pliku
+	printf("Macierz sasiedztwa:\n");
 	macierz(&L, iw, out);	// stworz i wypisz macierz sasiedztwa
-	//lista(&L, iw, out);		// stworz i wypisz liste sasiedztwa
+	printf("\nLista sasiedztwa:\n");
+	lista(&L, iw, out);		// stworz i wypisz liste sasiedztwa
 
 	fclose(in);		// zamkniecie plikow
 	fclose(out);
