@@ -1,5 +1,5 @@
 /*
- * Metody Programowania - Laboratorium 6 - Program 01
+ * Metody Programowania - Laboratorium 6 - Program 01-02
  * Implementacja klas: lista
  * Grzegorz Kowalski, 12i
  * wersja 2 | 04.2015
