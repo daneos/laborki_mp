@@ -56,10 +56,7 @@ void macierz(List::List<krawedz> *G, int iw, FILE *fout)
 	}
 
 	for(G->reset(); G->current(); G->next())
-	{
-		M[G->current()->getData()->v-1][G->current()->getData()->w-1] = G->current()->getData()->waga;	// tworzenie macierzy (nad przekatna)
-		//M[G->current()->getData()->w-1][G->current()->getData()->v-1]++;	// tworzenie macierzy (pod przekatna)
-	}
+		M[G->current()->getData()->v-1][G->current()->getData()->w-1] = G->current()->getData()->waga;	// tworzenie macierzy
 
 	fprintf(fout, "\t\t");
 	for(int i=0; i<iw; i++) fprintf(fout, "%d\t", i+1);	// wypisanie nagłówka macierzy
@@ -77,7 +74,7 @@ void macierz(List::List<krawedz> *G, int iw, FILE *fout)
 
 void lista(List::List<krawedz> *G, int iw, FILE *fout)
 {
-	List::List<sasiad> *L = (List::List<sasiad>*)malloc(iw*sizeof(List::List<sasiad>));
+	List::List<sasiad> *L = new List::List<sasiad>[iw];	// alokacja tablicy list
 
 	for(G->reset(); G->current(); G->next())
 	{
@@ -94,7 +91,7 @@ void lista(List::List<krawedz> *G, int iw, FILE *fout)
 			printf("%d(%d)%c", L[i].current()->getData()->v, L[i].current()->getData()->waga, L[i].current()->next()?',':' ');
 		printf("\n");
 	}
-	free(L);	// zwolnienie tablicy list
+	delete[] L;	// zwolnienie tablicy list
 }
 
 int main(int argc, char *argv[])
@@ -119,12 +116,13 @@ int main(int argc, char *argv[])
 		exit(1);
 	}
 
-	List::List<krawedz> L;
-	int iw = czytaj_graf(in, &L);	// odczyt pliku
+	List::List<krawedz> *L = new List::List<krawedz>;
+	int iw = czytaj_graf(in, L);	// odczyt pliku
 	printf("Macierz sasiedztwa:\n");
-	macierz(&L, iw, out);	// stworz i wypisz macierz sasiedztwa
+	macierz(L, iw, out);	// stworz i wypisz macierz sasiedztwa
 	printf("\nLista sasiedztwa:\n");
-	lista(&L, iw, out);		// stworz i wypisz liste sasiedztwa
+	lista(L, iw, out);		// stworz i wypisz liste sasiedztwa
+	delete L;
 
 	fclose(in);		// zamkniecie plikow
 	fclose(out);

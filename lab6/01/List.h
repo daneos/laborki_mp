@@ -36,9 +36,9 @@ namespace List
 	class List
 	{
 	private:
-		Element<T> *root;
-		int len;
-		Element<T> *cur;
+		Element<T> *root;	// glowa
+		int len;			// dlugosc listy, zeby nie musiec za kazdym razem przechodzic przez cala liste
+		Element<T> *cur;	// aktualnie przetwarzany element, przydatne przy uzywaniu listy jako iteratora
 
 	public:
 		List();
@@ -53,8 +53,8 @@ namespace List
 		void reset(void);
 		Element<T> *current(void);
 		Element<T> *next(void);
-		int operator+=(Element<T> *e);
-		Element<T> *operator[](int i);
+		int operator+=(Element<T> *e);	// to samo co List::append
+		Element<T> *operator[](int i);	// to samo co List::get
 		operator bool();
 		bool operator!();
 	};
@@ -97,6 +97,13 @@ namespace List
 	template <class T>
 	List<T>::~List()
 	{
+		for(this->reset(); this->current(); )
+		{
+			Element<T> *e = this->current();	// zapamietuje aktualny element
+			this->next();		// przechodze do nastepnego
+			delete e;			// usuwam zapamietany
+			this->len--;		// zmniejszam dlugosc listy
+		}
 	}
 
 	template <class T>
@@ -156,10 +163,21 @@ namespace List
 	{
 		if(i <= this->len && i > 0)
 		{
-			Element<T> *prev = this->get(i-1);
-			Element<T> *current = prev->next();
-			prev->p_next = current->next();		// element poprzedni dostaje adres nastepnego
-			delete current;		// aktualny jest usuwany
+			if(this->len == 1)	// jedyny element w liscie
+				delete this->root;
+			else if(i == 1)		// usuwanie glowy
+			{
+				Element<T> *e = this->root;
+				this->root = this->root->next();	// ustawiam element nastepny jako glowe
+				delete e;		// usuwam stara glowe
+			}
+			else		// usuwanie elementow ze srodka lub konca listy
+			{
+				Element<T> *prev = this->get(i-1);
+				Element<T> *current = prev->next();
+				prev->p_next = current->next();		// element poprzedni dostaje adres nastepnego
+				delete current;		// aktualny jest usuwany
+			}
 			return --this->len;
 		}
 		return -1;	// element nie istnieje
@@ -168,44 +186,44 @@ namespace List
 	template <class T>
 	void List<T>::reset(void)
 	{
-		this->cur = this->root;
+		this->cur = this->root;		// ustawienie aktualnie przetwarzanego elementu na glowe
 	}
 
 	template <class T>
 	Element<T> *List<T>::current(void)
 	{
-		return this->cur;
+		return this->cur;			// aktualnie przetwarzany element
 	}
 
 	template <class T>
 	Element<T> *List<T>::next(void)
 	{
-		this->cur = this->cur->next();
+		this->cur = this->cur->next();	// zmiana elementu aktualnego na nastepny
 		return this->current();
 	}
 
 	template <class T>
 	int List<T>::operator+=(Element<T> *e)
 	{
-		return this->append(e);
+		return this->append(e);		// dodanie elementu na koniec listy
 	}
 
 	template <class T>
 	Element<T> *List<T>::operator[](int i)
 	{
-		return this->get(i);
+		return this->get(i);		// pobranie i-tego elementu
 	}
 
 	template <class T>
 	List<T>::operator bool()
 	{
-		return (this->len > 0);
+		return (this->len > 0);		// sprawdzenie czy lista jest niepusta
 	}
 
 	template <class T>
 	bool List<T>::operator!()
 	{
-		return (this->len <= 0);
+		return (this->len <= 0);	// sprawdzenie czy lista jest pusta
 	}
 }
 

@@ -1,1 +1,1 @@
-/home/daneos/src/laborki_mp/lab6/01/List.h
+../01/List.h
