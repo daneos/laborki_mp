@@ -40,7 +40,7 @@ int czytaj_graf(FILE *fin, List::List<krawedz> *L)
 		fscanf(fin, "%d", &e.w);
 		fscanf(fin, "%d", &e.waga);
 		if(e.v > max) max = e.v;
-		if(e.w > max) max = e.w;
+		if(e.w > max) max = e.w;	// szukam maksymalnego wierzcholka
 		*L += new List::Element<krawedz>(e);
 	}
 	return max;
@@ -86,10 +86,10 @@ void lista(List::List<krawedz> *G, int iw, FILE *fout)
 
 	for(int i=0; i<iw; i++)
 	{
-		printf("%d:\t", i+1);
+		fprintf(fout, "%d:\t", i+1);
 		for(L[i].reset(); L[i].current(); L[i].next())
-			printf("%d(%d)%c", L[i].current()->getData()->v, L[i].current()->getData()->waga, L[i].current()->next()?',':' ');
-		printf("\n");
+			fprintf(fout, "%d(%d)%c", L[i].current()->getData()->v, L[i].current()->getData()->waga, L[i].current()->next()?',':' ');
+		fprintf(fout, "\n");
 	}
 	delete[] L;	// zwolnienie tablicy list
 }
@@ -118,9 +118,9 @@ int main(int argc, char *argv[])
 
 	List::List<krawedz> *L = new List::List<krawedz>;
 	int iw = czytaj_graf(in, L);	// odczyt pliku
-	printf("Macierz sasiedztwa:\n");
+	fprintf(out, "Macierz sasiedztwa:\n");
 	macierz(L, iw, out);	// stworz i wypisz macierz sasiedztwa
-	printf("\nLista sasiedztwa:\n");
+	fprintf(out, "\nLista sasiedztwa:\n");
 	lista(L, iw, out);		// stworz i wypisz liste sasiedztwa
 	delete L;
 
