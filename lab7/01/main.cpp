@@ -65,7 +65,7 @@ void zapakuj(FILE *fout, int p, List::List<przedmiot> *L)
 			przedmiot *a = L->current()->getData(); 
 			if((j >= a->masa) && (P[i-1][j] < P[i][j-a->masa] + a->cena))
 			{
-				P[i-1][j] = P[i][j-a->masa] + a->cena;	// dodanie aktualnego przedmiotu
+				P[i][j] = P[i-1][j-a->masa] + a->cena;	// dodanie aktualnego przedmiotu
 				Q[i][j] = i;
 			}
 			else
@@ -77,8 +77,9 @@ void zapakuj(FILE *fout, int p, List::List<przedmiot> *L)
 		L->next();
 	}
 
+	fprintf(fout, "P:\n");
 	wypisz(fout, P, L->getLen(), p);
-	fprintf(fout, "\n\n");
+	fprintf(fout, "\n\nQ:\n");
 	wypisz(fout, Q, L->getLen(), p);
 
 	for(int i=0; i < L->getLen(); i++)
