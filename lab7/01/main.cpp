@@ -10,7 +10,7 @@
 #include "List.h"
 
 typedef struct _przedmiot {
-	char nazwa[30];		// koniecznie do poprawy
+	char *nazwa;
 	int cena;
 	int masa;
 } przedmiot;
@@ -22,7 +22,7 @@ int czytaj(FILE *fin, List::List<przedmiot> *L)
 	while(true)
 	{
 		przedmiot p;
-		fscanf(fin, "%s", p.nazwa);
+		fscanf(fin, "%ms", &p.nazwa);	// POSIX.1-2008 dynamiczna alokacja (prawdopodobnie nie zadziala pod Windowsem)
 		fscanf(fin, "%d", &p.cena);
 		fscanf(fin, "%d", &p.masa);
 		if(feof(fin)) break;	// dodaje przedmiot do listy tylko jesli udalo sie go odczytac w calosci
