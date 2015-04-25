@@ -41,6 +41,22 @@ void wypisz(FILE *fout, int **tab, int x, int y)
 	}
 }
 
+void wypisz_plecak(FILE *fout, int **P, int **Q, List::List<przedmiot> *L, int poj)
+{
+	int i = L->getLen();
+	int j = poj;
+	int wyk = 0;	// wykorzystane miejsce
+	fprintf(fout, "przedmiot\tcena\tmasa\n----------------------------\n");
+	while(j > 0)
+	{
+		przedmiot *p = (*L)[Q[i][j]]->getData();
+		fprintf(fout, "%-10s\t%d\t%d\n", p->nazwa, p->cena, p->masa);
+		j -= p->masa;
+		wyk += p->masa;
+	}
+	fprintf(fout, "\nwartosc: %d, wykorzystane miejsce: %d / %d\n", P[i][poj], wyk, poj); 
+}
+
 void zapakuj(FILE *fout, int p, List::List<przedmiot> *L)
 {
 	int **P = (int**)malloc((L->getLen()+1)*sizeof(int*));		// alokacja i inicjalizacja P
@@ -80,7 +96,9 @@ void zapakuj(FILE *fout, int p, List::List<przedmiot> *L)
 	fprintf(fout, "P:\n");
 	wypisz(fout, P, L->getLen(), p);
 	fprintf(fout, "\n\nQ:\n");
-	wypisz(fout, Q, L->getLen(), p);
+	wypisz(fout, Q, L->getLen(), p);				// wypisywanie wyniku
+	fprintf(fout, "\n\nNajlepsze upakowanie:\n");
+	wypisz_plecak(fout, P, Q, L, p);
 
 	for(int i=0; i < L->getLen(); i++)
 		free(P[i]);
