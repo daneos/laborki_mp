@@ -57,21 +57,28 @@ void wypisz_plecak(FILE *fout, int **P, int **Q, List::List<przedmiot> *L, int p
 	fprintf(fout, "\nwartosc: %d, wykorzystane miejsce: %d / %d\n", P[i][poj], wyk, poj); 
 }
 
+int **tablica_init(int x, int y)
+{
+	int **tab = (int**)malloc(x*sizeof(int*));
+	for(int i=0; i < x; i++)
+	{
+		tab[i] = (int*)malloc(y*sizeof(int));
+		memset(tab[i], 0, y*sizeof(int));
+	}
+	return tab;
+}
+
+void tablica_free(int **tab, int x)
+{
+	for(int i=0; i < x; i++)
+		free(tab[i]);
+	free(tab);
+}
+
 void zapakuj(FILE *fout, int p, List::List<przedmiot> *L)
 {
-	int **P = (int**)malloc((L->getLen()+1)*sizeof(int*));		// alokacja i inicjalizacja P
-	for(int i=0; i <= L->getLen(); i++)
-	{
-		P[i] = (int*)malloc((p+1)*sizeof(int));
-		memset(P[i], 0, (p+1)*sizeof(int));
-	}
-
-	int **Q = (int**)malloc((L->getLen()+1)*sizeof(int*));		// alokacja i inicjalizacja Q
-	for(int i=0; i <= L->getLen(); i++)
-	{
-		Q[i] = (int*)malloc((p+1)*sizeof(int));
-		memset(Q[i], 0, (p+1)*sizeof(int));
-	}
+	int **P = tablica_init(L->getLen()+1, p+1);
+	int **Q = tablica_init(L->getLen()+1, p+1);
 
 	L->reset();
 	for(int i=1; L->current(); i++)
@@ -100,13 +107,8 @@ void zapakuj(FILE *fout, int p, List::List<przedmiot> *L)
 	fprintf(fout, "\n\nNajlepsze upakowanie:\n");
 	wypisz_plecak(fout, P, Q, L, p);
 
-	for(int i=0; i < L->getLen(); i++)
-		free(P[i]);
-	free(P);		// zwolnienie P
-
-	for(int i=0; i < L->getLen(); i++)
-		free(Q[i]);
-	free(Q);		// zwolnienie Q
+	tablica_free(P, L->getLen()+1);
+	tablica_free(Q, L->getLen()+1);
 }
 
 int main(int argc, char *argv[])
