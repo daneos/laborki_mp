@@ -11,6 +11,9 @@
 #ifndef __TREE_H__
 #define __TREE_H__
 
+#define BITMAP_RIGHT(b, i)  ((b) & ~(1 << (i)))		// czysci bit i
+#define BITMAP_LEFT(b, i)	((b) | 1 << (i))		// ustawia bit i
+
 namespace Tree
 {
 	template <class T>
@@ -21,12 +24,11 @@ namespace Tree
 		class Key	// klucz jednoznacznie identyfikujacy wezel w drzewie
 		{
 		public:
-			int L;		// ilosc lewych rozgalezien
-			int R;		// ilosc prawych rozgalezien
-			int Depth;	// glebokosc w drzewie
+			unsigned int Bitmap;		// mapa bitowa rozgalezien
+			int Depth;		// glebokosc w drzewie
 
 			Key();
-			Key(int L, int R, int Depth);
+			Key(unsigned int Bitmap, int Depth);
 			~Key();
 			int operator==(Key &k);
 		};
@@ -80,15 +82,13 @@ namespace Tree
 // ---------------------------------------------- class Tree::Node::Key
 Tree::Node::Key::Key()
 {
-	this->L = 0;
-	this->R = 0;
+	this->Bitmap = 0;
 	this->Depth = 0;
 }
 
-Tree::Node::Key::Key(int L, int R, int Depth)
+Tree::Node::Key::Key(unsigned int Bitmap, int Depth)
 {
-	this->L = L;
-	this->R = R;
+	this->Bitmap = Bitmap;
 	this->Depth = Depth;
 }
 
@@ -98,7 +98,7 @@ Tree::Node::Key::~Key()
 
 int Tree::Node::Key::operator==(Tree::Node::Key &k)
 {
-	return ((this->L == k.L) && (this->R = k.R) && (this->Depth == k.Depth));
+	return ((this->Bitmap == k.Bitmap) && (this->Depth == k.Depth));
 }
 
 //----------------------------------------------- class Tree::Node::BinaryReturn
@@ -213,7 +213,8 @@ Tree::Node::Key *Tree::BinaryReturn<T>::appendRight(Node::BinaryReturn<T> *node)
 	this->current->right = node;
 	node->parent = this->Current();
 	Tree::Node::Key *k = this->Current()->key;
-	node->key = new Tree::Node::Key(k->L, k->R+1, k->Depth+1);
+	node->key->Bitmap = BITMAP_RIGHT(k->Bitmap, k->Depth+1);
+	node->key->Depth = k->Depth+1;
 	return node->key;
 }
 
@@ -223,7 +224,8 @@ Tree::Node::Key *Tree::BinaryReturn<T>::appendLeft(Node::BinaryReturn<T> *node)
 	this->current->left = node;
 	node->parent = this->Current();
 	Tree::Node::Key *k = this->Current()->key;
-	node->key = new Tree::Node::Key(k->L+1, k->R, k->Depth+1);
+	node->key->Bitmap = BITMAP_LEFT(k->Bitmap, k->Depth+1);
+	node->key->Depth = k->Depth+1;
 	return node->key;
 }
 
