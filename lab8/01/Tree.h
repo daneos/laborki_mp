@@ -1,5 +1,5 @@
 /*
- * Metody Programowania - Laboratorium 8 - Program 01
+ * Metody Programowania - Laboratorium 8-9
  * Implementacja klas: drzewo binarne z powrotem
  * Grzegorz Kowalski, 12i
  * wersja 1 | 05.2015
@@ -13,6 +13,7 @@
 
 #define BITMAP_RIGHT(b, i)  ((b) & ~(1 << (i)))		// czysci bit i
 #define BITMAP_LEFT(b, i)	((b) | 1 << (i))		// ustawia bit i
+#define BITMAP_CHECK(b, i)	(((b) >> (i)) & 1)		// sprawdza wartosc bitu i
 
 namespace Tree
 {
@@ -75,6 +76,8 @@ namespace Tree
 		Node::BinaryReturn<T> *Parent(void);
 		Node::Key *appendRight(Node::BinaryReturn<T> *node);
 		Node::Key *appendLeft(Node::BinaryReturn<T> *node);
+		Node::Key *appendRight(BinaryReturn<T> *tree);
+		Node::Key *appendLeft(BinaryReturn<T> *tree);
 		List::List<T> *pathTo(Node::Key *key);
 	};
 }
@@ -116,6 +119,8 @@ template <class T>
 Tree::Node::BinaryReturn<T>::~BinaryReturn()
 {
 	delete this->key;
+	if(this->left) delete this->left;
+	if(this->right) delete this->right;
 }
 
 template <class T>
@@ -159,6 +164,7 @@ Tree::BinaryReturn<T>::BinaryReturn()
 template <class T>
 Tree::BinaryReturn<T>::~BinaryReturn()
 {
+	delete this->root;
 }
 
 template <class T>
@@ -171,6 +177,8 @@ template <class T>
 void Tree::BinaryReturn<T>::setRoot(Tree::Node::BinaryReturn<T> *node)
 {
 	this->root = node;
+	node->key->Bitmap = 0;
+	node->key->Depth = 0;
 }
 
 template <class T>
@@ -208,7 +216,7 @@ Tree::Node::BinaryReturn<T> *Tree::BinaryReturn<T>::Parent(void)
 }
 
 template <class T>
-Tree::Node::Key *Tree::BinaryReturn<T>::appendRight(Node::BinaryReturn<T> *node)
+Tree::Node::Key *Tree::BinaryReturn<T>::appendRight(Tree::Node::BinaryReturn<T> *node)
 {
 	this->current->right = node;
 	node->parent = this->Current();
@@ -219,7 +227,7 @@ Tree::Node::Key *Tree::BinaryReturn<T>::appendRight(Node::BinaryReturn<T> *node)
 }
 
 template <class T>
-Tree::Node::Key *Tree::BinaryReturn<T>::appendLeft(Node::BinaryReturn<T> *node)
+Tree::Node::Key *Tree::BinaryReturn<T>::appendLeft(Tree::Node::BinaryReturn<T> *node)
 {
 	this->current->left = node;
 	node->parent = this->Current();
@@ -227,6 +235,18 @@ Tree::Node::Key *Tree::BinaryReturn<T>::appendLeft(Node::BinaryReturn<T> *node)
 	node->key->Bitmap = BITMAP_LEFT(k->Bitmap, k->Depth+1);
 	node->key->Depth = k->Depth+1;
 	return node->key;
+}
+
+template <class T>
+Tree::Node::Key *Tree::BinaryReturn<T>::appendRight(Tree::BinaryReturn<T> *tree)
+{
+	// TODO: Dodawanie drzewa musi aktualizować klucze wszystkich wezlow
+}
+
+template <class T>
+Tree::Node::Key *Tree::BinaryReturn<T>::appendLeft(Tree::BinaryReturn<T> *tree)
+{
+	// j.w.
 }
 
 template <class T>

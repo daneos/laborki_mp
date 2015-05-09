@@ -49,7 +49,7 @@ namespace List
 		int prepend(Element<T> *e);
 		int appendAfter(Element<T> *e, int i);
 		int prependBefore(Element<T> *e, int i);
-		int remove(int i);
+		int remove(int i, bool dealloc=true);
 		void reset(void);
 		Element<T> *current(void);
 		Element<T> *next(void);
@@ -145,6 +145,7 @@ namespace List
 	template <class T>
 	int List<T>::appendAfter(Element<T> *e, int i)
 	{
+		if(i == 0) return this->prepend(e);		// jesli wstawiam za element zerowy, to wstawiam przed cala liste
 		Element<T> *after;
 		if((after = this->get(i)) == NULL) return -1;	// jesli element za ktory wstawiam nie istnieje, zwroc blad
 		e->p_next = after->next();		// nowy element wskazuje na nastepnik poprzedniego
@@ -159,24 +160,25 @@ namespace List
 	}
 
 	template <class T>
-	int List<T>::remove(int i)
+	int List<T>::remove(int i, bool dealloc)
 	{
 		if(i <= this->len && i > 0)
 		{
 			if(this->len == 1)	// jedyny element w liscie
-				delete this->root;
+				if(dealloc) delete this->root;
+				else this->root = NULL;
 			else if(i == 1)		// usuwanie glowy
 			{
 				Element<T> *e = this->root;
 				this->root = this->root->next();	// ustawiam element nastepny jako glowe
-				delete e;		// usuwam stara glowe
+				if(dealloc) delete e;		// usuwam stara glowe
 			}
 			else		// usuwanie elementow ze srodka lub konca listy
 			{
 				Element<T> *prev = this->get(i-1);
 				Element<T> *current = prev->next();
 				prev->p_next = current->next();		// element poprzedni dostaje adres nastepnego
-				delete current;		// aktualny jest usuwany
+				if(dealloc) delete current;		// aktualny jest usuwany
 			}
 			return --this->len;
 		}
