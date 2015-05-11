@@ -15,32 +15,52 @@ typedef struct _symbol {
 	float czest;		// czestotliwosc/prawdopodobienstwo
 } symbol;
 
+void wypisz_liste(List::List< Tree::BinaryReturn<symbol> > *L)
+{
+	printf("wypisz\n");
+	for(L->reset(); L->current(); L->next())
+	{
+		symbol *p = L->current()->getData()->getRoot()->getData();
+		printf("%p, %s, %c, %f\n", p, p->zawiera_dane?"true":"false", p->zawiera_dane?p->litera:'~', p->czest);
+	}
+}
+
 List::List< Tree::BinaryReturn<symbol> > *czytaj(FILE *fin)
 {
 	List::List< Tree::BinaryReturn<symbol> > *L = new List::List< Tree::BinaryReturn<symbol> >;		// lista drzew o elementach typu litera
 	while(true)
 	{
 		symbol p;
-		fscanf(fin, "%c", &p.litera);
-		fscanf(fin, "%f", &p.czest);
+		fscanf(fin, "%c %f\n", &p.litera, &p.czest);
 		p.zawiera_dane = true;
+		printf("IN: %c, %f\n", p.litera, p.czest);
 		if(feof(fin)) break;	// dodaje litere do listy tylko jesli udalo sie ja odczytac w calosci
 		
+		Tree::Node::BinaryReturn<symbol> *korzen = new Tree::Node::BinaryReturn<symbol>(p);
+		Tree::BinaryReturn<symbol> *drzewo = new Tree::BinaryReturn<symbol>;
+		drzewo->setRoot(korzen);
+		List::Element< Tree::BinaryReturn<symbol> > *li = new List::Element< Tree::BinaryReturn<symbol> >(*drzewo);
+
 		int i=1;
 		for(L->reset(); L->current(); L->next())	// petla automatycznie sortujaca
 		{
+			printf("\t\t%d\t|\t%f > %f\n", i, L->current()->getData()->getRoot()->getData()->czest, p.czest);
 			if(L->current()->getData()->getRoot()->getData()->czest > p.czest)
 			{
-				Tree::Node::BinaryReturn<symbol> *korzen = new Tree::Node::BinaryReturn<symbol>(p);
-				Tree::BinaryReturn<symbol> *drzewo = new Tree::BinaryReturn<symbol>;
-				drzewo->setRoot(korzen);
-
-				L->prependBefore(new List::Element< Tree::BinaryReturn<symbol> >(*drzewo), i);
+				L->prependBefore(li, i);
+				printf("IN:\t\t@ List[%d]\n", i);
 				break;
 			}
 			i++;
 		}
+
+		if(!L->current())
+		{
+			*L += li;
+			printf("IN:\t\t@ List[END]\n");
+		}
 	}
+	wypisz_liste(L);
 	return L;
 }
 
@@ -98,7 +118,9 @@ int main(int argc, char *argv[])
 	}
 
 	List::List< Tree::BinaryReturn<symbol> > *lista = czytaj(in);
+	wypisz_liste(lista);
 	huffman(out, lista);
+	wypisz_liste(lista);
 	
 	delete lista;
 	fclose(in);		// zamkniecie plikow

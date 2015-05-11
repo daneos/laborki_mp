@@ -5,6 +5,7 @@
  */
 
 #include <stdio.h>
+#include <stdlib.h>
 #include "List.h"
 #include "Tree.h"
 
@@ -22,6 +23,16 @@ typedef struct _wezel {
 	int k;
 } wezel;
 
+
+void wypisz_liste(List::List<przedmiot> *L)
+{
+	for(L->reset(); L->current(); L->next())
+	{
+		przedmiot *p = L->current()->getData();
+		printf("%p, %d, %d, %d\n", p, p->i, p->cena, p->masa);
+	}
+}
+
 int czytaj(FILE *fin, List::List<przedmiot> *L)
 {
 	int poj;
@@ -33,7 +44,21 @@ int czytaj(FILE *fin, List::List<przedmiot> *L)
 		fscanf(fin, "%d", &p.cena);
 		fscanf(fin, "%d", &p.masa);
 		if(feof(fin)) break;	// dodaje przedmiot do listy tylko jesli udalo sie go odczytac w calosci
-		*L += new List::Element<przedmiot>(p);
+		
+		List::Element<przedmiot> *li = new List::Element<przedmiot>(p);
+
+		int i=1;
+		for(L->reset(); L->current(); L->next())	// petla automatycznie sortujaca
+		{
+			przedmiot *current = L->current()->getData();
+			if(current->cena/current->masa < p.cena/p.masa)		// sortowanie wg. wartosci cena/masa
+			{
+				L->prependBefore(li, i);	// dodawanie w odpowiednie miejsce listy
+				break;
+			}
+			i++;
+		}
+		if(!L->current()) *L += li;			// element nie zostal dodany wczesniej, dodaje na koniec
 	}
 	return poj;
 }
@@ -68,6 +93,8 @@ int main(int argc, char *argv[])
 	List::List<przedmiot> *L = new List::List<przedmiot>;
 	int pojemnosc = czytaj(in, L);		// wczytywanie rzeczy
 	zapakuj(out, pojemnosc, L);		// pakowanie plecaka
+
+	wypisz_liste(L);
 
 	delete L;
 	fclose(in);		// zamkniecie plikow

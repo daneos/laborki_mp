@@ -240,13 +240,17 @@ Tree::Node::Key *Tree::BinaryReturn<T>::appendLeft(Tree::Node::BinaryReturn<T> *
 template <class T>
 Tree::Node::Key *Tree::BinaryReturn<T>::appendRight(Tree::BinaryReturn<T> *tree)
 {
+	Tree::Node::Key *added_key = this->appendRight(tree->getRoot());
 	// TODO: Dodawanie drzewa musi aktualizować klucze wszystkich wezlow
+	return added_key;
 }
 
 template <class T>
 Tree::Node::Key *Tree::BinaryReturn<T>::appendLeft(Tree::BinaryReturn<T> *tree)
 {
+	Tree::Node::Key *added_key = this->appendLeft(tree->getRoot());
 	// j.w.
+	return added_key;
 }
 
 template <class T>
