@@ -79,7 +79,9 @@ int k(Tree::Node::BinaryReturn<wezel> *W, int p, List::List<przedmiot> *L)
 int totweight(Tree::Node::BinaryReturn<wezel> *W, int p, List::List<przedmiot> *L)
 {
 	int t = W->getData()->weight;
-	for(int i = W->key->Depth+1; i <= k(W, p, L)-1; i++)
+	int k_w = k(W, p, L);
+	if(k_w > L->getLen()) return -1;
+	for(int i = W->key->Depth+1; i <= k_w-1; i++)
 		t += (*L)[i]->getData()->masa;
 	return t;
 }
@@ -88,6 +90,7 @@ int bound(Tree::Node::BinaryReturn<wezel> *W, int p, List::List<przedmiot> *L)
 {
 	int b = W->getData()->profit;
 	int k_w = k(W, p, L);
+	if(k_w > L->getLen()) return -1;		// jesli k jest wieksze od ilosci przedmiotow, nie da sie wyliczyc bound
 	for(int i = W->key->Depth+1; i <= k_w-1; i++)
 		b += (*L)[i]->getData()->cena;
 	return b + (p - totweight(W, p, L)) * ((*L)[k_w]->getData()->cena/(*L)[k_w]->getData()->masa);
@@ -102,6 +105,63 @@ void wypisz_wezel_info(FILE *fout, Tree::Node::BinaryReturn<wezel> *W, int p, Li
 	fprintf(fout, "    bound     = %d\n", w_data->bound);
 }
 
+bool promising(Tree::Node::BinaryReturn<wezel> *W, int p, int max)
+{
+	if(W->getData()->weight >= p) return false;
+	if(W->getData()->bound <= max) return false;
+	return true;
+}
+
+void checknode_tree(FILE *fout, Tree::BinaryReturn<wezel> *T, int p, int *max, List::List<przedmiot> *L)
+{
+	wypisz_wezel_info(fout, T->Current(), p, L);
+	if(T->Current()->getData()->profit > *max && T->Current()->getData()->weight <= p)
+	{
+		*max = T->Current()->getData()->profit;
+		fprintf(fout, "[+] MAX = %d\n", *max);
+	}
+	else fprintf(fout, "[-] MAX niezmieniony: = %d\n", *max);
+
+	if(promising(T->Current(), p, *max) && T->Current()->key->Depth < L->getLen())
+	{
+		fprintf(fout, "[+] Obiecujacy, sprawdzam dalej.\n\n");
+
+		przedmiot *nastepny = (*L)[T->Current()->key->Depth+1]->getData();
+
+		// wypelniam lewe dziecko
+		wezel lewy_data = { 
+			nastepny,												// przedmiot *P
+			T->Current()->getData()->profit + nastepny->cena,		// int profit
+			T->Current()->getData()->weight + nastepny->masa,		// int weight
+			0,														// int bound
+			0														// int k
+		};
+		Tree::Node::BinaryReturn<wezel> *lewy = new Tree::Node::BinaryReturn<wezel>(lewy_data);
+		T->appendLeft(lewy);		// dolaczam do drzewa, aby wypelnic pola klucza (do obliczenia k i bound)
+		lewy->getData()->bound = bound(lewy, p, L);
+		lewy->getData()->k = k(lewy, p, L);
+
+		// wypelniam prawe dziecko
+		wezel prawy_data = { 
+			nastepny,								// przedmiot *P
+			T->Current()->getData()->profit,		// int profit
+			T->Current()->getData()->weight,		// int weight
+			0,										// int bound
+			0										// int k
+		};
+		Tree::Node::BinaryReturn<wezel> *prawy = new Tree::Node::BinaryReturn<wezel>(prawy_data);
+		T->appendRight(prawy);		// dolaczam do drzewa, aby wypelnic pola klucza (do obliczenia k i bound)
+		prawy->getData()->bound = bound(prawy, p, L);
+		prawy->getData()->k = k(prawy, p, L);
+
+		T->Left();	checknode_tree(fout, T, p, max, L);		// sprawdzanie lewego dziecka
+		T->Right();	checknode_tree(fout, T, p, max, L);		// sprawdzanie prawego dziecka
+	}
+	else fprintf(fout, "[-] Nieobiecujacy.\n\n");
+	fprintf(fout, "[:] Wracam.\n\n");
+	T->Parent();		// powrot do wyzszego wezla
+}
+
 void zapakuj(FILE *fout, int W, List::List<przedmiot> *L)
 {
 	fprintf(fout, "[:] Inicjalizacja drzewa...\n");
@@ -111,9 +171,16 @@ void zapakuj(FILE *fout, int W, List::List<przedmiot> *L)
 	T->setRoot(r);
 	T->Reset();
 
+	fprintf(fout, "[:] Inicjalizacja korzenia...\n");
 	T->Current()->getData()->k = k(T->Current(), W, L);
 	T->Current()->getData()->bound = bound(T->Current(), W, L);
-	wypisz_wezel_info(fout, r, W, L);
+
+	int maxprofit = 0;
+	checknode_tree(fout, T, W, &maxprofit, L);
+
+	// jakies rozwiazanie moze?
+
+	delete T;
 }
 
 int main(int argc, char *argv[])
