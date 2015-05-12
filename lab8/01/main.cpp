@@ -23,6 +23,11 @@ typedef struct _wezel {
 	int k;
 } wezel;
 
+typedef struct _rozwiazanie {
+	Tree::Node::BinaryReturn<wezel> *W;
+	int maxprofit;
+} rozwiazanie;
+
 void wypisz_liste(FILE *fout, List::List<przedmiot> *L)
 {
 	fprintf(fout, "    id\tcena\tmasa\t\tadres\n    --------------------------------------------------\n");
@@ -108,24 +113,25 @@ void wypisz_wezel_info(FILE *fout, Tree::Node::BinaryReturn<wezel> *W, int p, Li
 	fprintf(fout, "    bound     = %d\n", w_data->bound);
 }
 
-bool promising(Tree::Node::BinaryReturn<wezel> *W, int p, int max)
+bool promising(Tree::Node::BinaryReturn<wezel> *W, int p, rozwiazanie *max)
 {
 	if(W->getData()->weight >= p) return false;
-	if(W->getData()->bound <= max) return false;
+	if(W->getData()->bound <= max->maxprofit) return false;
 	return true;
 }
 
-void checknode_tree(FILE *fout, Tree::BinaryReturn<wezel> *T, int p, int *max, List::List<przedmiot> *L)
+void checknode_tree(FILE *fout, Tree::BinaryReturn<wezel> *T, int p, rozwiazanie *max, List::List<przedmiot> *L)
 {
 	wypisz_wezel_info(fout, T->Current(), p, L);
-	if(T->Current()->getData()->profit > *max && T->Current()->getData()->weight <= p)
+	if(T->Current()->getData()->profit > max->maxprofit && T->Current()->getData()->weight <= p)
 	{
-		*max = T->Current()->getData()->profit;
-		fprintf(fout, "[+] MAX = %d\n", *max);
+		max->W = T->Current();
+		max->maxprofit = T->Current()->getData()->profit;
+		fprintf(fout, "[+] MAX = %d\n", max->maxprofit);
 	}
-	else fprintf(fout, "[-] MAX niezmieniony: = %d\n", *max);
+	else fprintf(fout, "[-] MAX niezmieniony: = %d\n", max->maxprofit);
 
-	if(promising(T->Current(), p, *max) && T->Current()->key->Depth < L->getLen())
+	if(promising(T->Current(), p, max) && T->Current()->key->Depth < L->getLen())
 	{
 		fprintf(fout, "[+] Obiecujacy, sprawdzam dalej.\n\n");
 
@@ -165,6 +171,16 @@ void checknode_tree(FILE *fout, Tree::BinaryReturn<wezel> *T, int p, int *max, L
 	T->Parent();		// powrot do wyzszego wezla
 }
 
+void wypisz_rozwiazanie(FILE *fout, rozwiazanie *r, int p, List::List<przedmiot> *L)
+{
+	fprintf(fout, "____________________________________________\nNajlepsze rozwiazanie: wezel (%d, %d):\n", r->W->key->Bitmap, r->W->key->Depth);
+	fprintf(fout, "\tid\tcena\tmasa\n-------------------------------\n");
+	for(int i=1; i <= L->getLen(); i++)
+		if(BITMAP_CHECK(r->W->key->Bitmap, i))
+			fprintf(fout, "\t%d\t%d\t%d\n", (*L)[i]->getData()->i, (*L)[i]->getData()->cena, (*L)[i]->getData()->masa);
+	fprintf(fout, "_______________________________\nSUMA:\t\t%d\t%d / %d\n\n", r->W->getData()->profit, r->W->getData()->weight, p);
+}
+
 void zapakuj(FILE *fout, int W, List::List<przedmiot> *L)
 {
 	fprintf(fout, "[:] Inicjalizacja drzewa...\n");
@@ -178,10 +194,10 @@ void zapakuj(FILE *fout, int W, List::List<przedmiot> *L)
 	T->Current()->getData()->k = k(T->Current(), W, L);
 	T->Current()->getData()->bound = bound(T->Current(), W, L);
 
-	int maxprofit = 0;
-	checknode_tree(fout, T, W, &maxprofit, L);
+	rozwiazanie max = { NULL, 0 };
+	checknode_tree(fout, T, W, &max, L);
 
-	// jakies rozwiazanie moze?
+	wypisz_rozwiazanie(fout, &max, W, L);
 
 	delete T;
 }
