@@ -67,7 +67,7 @@ int k(Tree::Node::BinaryReturn<wezel> *W, int p, List::List<przedmiot> *L)
 {
 	int total = 0;
 	int k;
-	for(k=1; k <= L->getLen(); k++)
+	for(k=1; k < L->getLen(); k++)
 	{
 		if(W->key->Depth < k || BITMAP_CHECK(W->key->Bitmap, k))
 			total += (*L)[k]->getData()->masa;
@@ -80,7 +80,6 @@ int totweight(Tree::Node::BinaryReturn<wezel> *W, int p, List::List<przedmiot> *
 {
 	int t = W->getData()->weight;
 	int k_w = k(W, p, L);
-	if(k_w > L->getLen()) return -1;
 	for(int i = W->key->Depth+1; i <= k_w-1; i++)
 		t += (*L)[i]->getData()->masa;
 	return t;
@@ -90,16 +89,20 @@ int bound(Tree::Node::BinaryReturn<wezel> *W, int p, List::List<przedmiot> *L)
 {
 	int b = W->getData()->profit;
 	int k_w = k(W, p, L);
-	if(k_w > L->getLen()) return -1;		// jesli k jest wieksze od ilosci przedmiotow, nie da sie wyliczyc bound
 	for(int i = W->key->Depth+1; i <= k_w-1; i++)
 		b += (*L)[i]->getData()->cena;
-	return b + (p - totweight(W, p, L)) * ((*L)[k_w]->getData()->cena/(*L)[k_w]->getData()->masa);
+
+	if(k_w <= L->getLen())
+		return b + (p - totweight(W, p, L)) * ((*L)[k_w]->getData()->cena/(*L)[k_w]->getData()->masa);
+	else return b;		// jesli k wychodzi poza tablice, stosunek pi/wi jest rowny 0
 }
 
 void wypisz_wezel_info(FILE *fout, Tree::Node::BinaryReturn<wezel> *W, int p, List::List<przedmiot> *L)
 {
 	wezel *w_data = W->getData();
 	fprintf(fout, "[:] Wezel: (%d, %d)\t\tNode:%p\t\tData:%p\t\tP:%p\n", W->key->Bitmap, W->key->Depth, W, w_data, w_data->P);
+	fprintf(fout, "    profit    = %d\n", w_data->profit);
+	fprintf(fout, "    weight    = %d\n", w_data->weight);
 	fprintf(fout, "    k         = %d\n", w_data->k);
 	fprintf(fout, "    totweight = %d\n", totweight(W, p, L));
 	fprintf(fout, "    bound     = %d\n", w_data->bound);
