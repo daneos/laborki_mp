@@ -228,7 +228,7 @@ int main(int argc, char *argv[])
 	int pojemnosc = czytaj(in, L);		// wczytywanie rzeczy
 	fprintf(out, "[+] Wczytano plecak: %d\n", pojemnosc);
 	wypisz_liste(out, L);
-	printf("\n\n");
+	fprintf(out, "\n\n");
 	zapakuj(out, pojemnosc, L);		// pakowanie plecaka
 
 	delete L;

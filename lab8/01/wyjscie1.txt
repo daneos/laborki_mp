@@ -1,0 +1,163 @@
+[+] Wczytano plecak: 16
+    id	cena	masa		adres
+    --------------------------------------------------
+    1	40	2		0x8914f0
+    2	30	5		0x8914b0
+    3	50	10		0x8914d0
+    4	10	5		0x891510
+
+
+[:] Inicjalizacja drzewa...
+[:] Inicjalizacja korzenia...
+[:] Wezel: (0, 0)		Node:0x891550		Data:0x891558		P:(nil)
+    profit    = 0
+    weight    = 0
+    k         = 3
+    totweight = 7
+    bound     = 115
+[-] MAX niezmieniony: = 0
+[+] Obiecujacy, sprawdzam dalej.
+
+[:] Wezel: (2, 1)		Node:0x8915b0		Data:0x8915b8		P:0x8914f0
+    profit    = 40
+    weight    = 2
+    k         = 3
+    totweight = 7
+    bound     = 115
+[+] MAX = 40
+[+] Obiecujacy, sprawdzam dalej.
+
+[:] Wezel: (6, 2)		Node:0x891670		Data:0x891678		P:0x8914b0
+    profit    = 70
+    weight    = 7
+    k         = 3
+    totweight = 7
+    bound     = 115
+[+] MAX = 70
+[+] Obiecujacy, sprawdzam dalej.
+
+[:] Wezel: (14, 3)		Node:0x891730		Data:0x891738		P:0x8914d0
+    profit    = 120
+    weight    = 17
+    k         = 3
+    totweight = 17
+    bound     = 115
+[-] MAX niezmieniony: = 70
+[-] Nieobiecujacy.
+
+[:] Wracam.
+
+[:] Wezel: (6, 3)		Node:0x891790		Data:0x891798		P:0x8914d0
+    profit    = 70
+    weight    = 7
+    k         = 5
+    totweight = 12
+    bound     = 80
+[-] MAX niezmieniony: = 70
+[+] Obiecujacy, sprawdzam dalej.
+
+[:] Wezel: (22, 4)		Node:0x8917f0		Data:0x8917f8		P:0x891510
+    profit    = 80
+    weight    = 12
+    k         = 5
+    totweight = 12
+    bound     = 80
+[+] MAX = 80
+[-] Nieobiecujacy.
+
+[:] Wracam.
+
+[:] Wezel: (6, 4)		Node:0x891850		Data:0x891858		P:0x891510
+    profit    = 70
+    weight    = 7
+    k         = 5
+    totweight = 7
+    bound     = 70
+[-] MAX niezmieniony: = 80
+[-] Nieobiecujacy.
+
+[:] Wracam.
+
+[:] Wracam.
+
+[:] Wracam.
+
+[:] Wezel: (2, 2)		Node:0x8916d0		Data:0x8916d8		P:0x8914b0
+    profit    = 40
+    weight    = 2
+    k         = 5
+    totweight = 17
+    bound     = 100
+[-] MAX niezmieniony: = 80
+[+] Obiecujacy, sprawdzam dalej.
+
+[:] Wezel: (10, 3)		Node:0x8918b0		Data:0x8918b8		P:0x8914d0
+    profit    = 90
+    weight    = 12
+    k         = 5
+    totweight = 17
+    bound     = 100
+[+] MAX = 90
+[+] Obiecujacy, sprawdzam dalej.
+
+[:] Wezel: (26, 4)		Node:0x891970		Data:0x891978		P:0x891510
+    profit    = 100
+    weight    = 17
+    k         = 5
+    totweight = 17
+    bound     = 100
+[-] MAX niezmieniony: = 90
+[-] Nieobiecujacy.
+
+[:] Wracam.
+
+[:] Wezel: (10, 4)		Node:0x8919d0		Data:0x8919d8		P:0x891510
+    profit    = 90
+    weight    = 12
+    k         = 5
+    totweight = 12
+    bound     = 90
+[-] MAX niezmieniony: = 90
+[-] Nieobiecujacy.
+
+[:] Wracam.
+
+[:] Wracam.
+
+[:] Wezel: (2, 3)		Node:0x891910		Data:0x891918		P:0x8914d0
+    profit    = 40
+    weight    = 2
+    k         = 5
+    totweight = 7
+    bound     = 50
+[-] MAX niezmieniony: = 90
+[-] Nieobiecujacy.
+
+[:] Wracam.
+
+[:] Wracam.
+
+[:] Wracam.
+
+[:] Wezel: (0, 1)		Node:0x891610		Data:0x891618		P:0x8914f0
+    profit    = 0
+    weight    = 0
+    k         = 5
+    totweight = 20
+    bound     = 90
+[-] MAX niezmieniony: = 90
+[-] Nieobiecujacy.
+
+[:] Wracam.
+
+[:] Wracam.
+
+____________________________________________
+Najlepsze rozwiazanie: wezel (10, 3):
+	id	cena	masa
+-------------------------------
+	1	40	2
+	3	50	10
+_______________________________
+SUMA:		90	12 / 16
+
