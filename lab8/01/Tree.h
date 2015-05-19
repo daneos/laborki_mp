@@ -48,7 +48,6 @@ namespace Tree
 		public:
 			Key *key;
 			BinaryReturn(T data);
-			//BinaryReturn(const BinaryReturn<T>& n);
 			~BinaryReturn();
 			BinaryReturn<T> *Parent(void);
 			BinaryReturn<T> *Left(void);
@@ -65,9 +64,11 @@ namespace Tree
 		Node::BinaryReturn<T> *root;
 		Node::BinaryReturn<T> *current;
 
+		void setCurrent(Node::BinaryReturn<T> *node);
+		void updateBelow(bool is_left);
+
 	public:
 		BinaryReturn();
-		//BinaryReturn(const BinaryReturn& br);
 		~BinaryReturn();
 		Node::BinaryReturn<T> *getRoot(void);
 		void setRoot(Node::BinaryReturn<T> *node);
@@ -117,16 +118,6 @@ Tree::Node::BinaryReturn<T>::BinaryReturn(T data)
 	this->key = new Tree::Node::Key;
 }
 
-/*template <class T>
-Tree::Node::BinaryReturn<T>::BinaryReturn(const Tree::Node::BinaryReturn<T>& n)
-{
-	this->data = n.data;
-	this->parent = n.parent;
-	this->left = n.left;
-	this->right = n.right;
-	this->key = n.key;
-}*/
-
 template <class T>
 Tree::Node::BinaryReturn<T>::~BinaryReturn()
 {
@@ -167,18 +158,39 @@ int Tree::Node::BinaryReturn<T>::operator==(Tree::Node::BinaryReturn<T> &n)
 
 //----------------------------------------------- class Tree::BinaryReturn
 template <class T>
+void Tree::BinaryReturn<T>::setCurrent(Tree::Node::BinaryReturn<T> *node)
+{
+	this->current = node;
+}
+
+template <class T>
+void Tree::BinaryReturn<T>::updateBelow(bool is_left)
+{
+	if(this->Current()->left)	// aktualizacja kluczy pod spodem
+	{
+		this->Left();
+		this->updateBelow(true);
+	}
+	if(this->Current()->right)
+	{
+		this->Right();
+		this->updateBelow(false);
+	}
+	
+	this->Current()->key->Bitmap = is_left ?	// aktualizacja klucza w aktualnym wezle
+								   BITMAP_LEFT(this->Current()->Parent()->key->Bitmap, this->Current()->Parent()->key->Depth+1) :
+								   BITMAP_RIGHT(this->Current()->Parent()->key->Bitmap, this->Current()->Parent()->key->Depth+1);
+	this->Current()->key->Depth = this->Current()->Parent()->key->Depth+1;
+
+	this->Parent();		// powrot
+}
+
+template <class T>
 Tree::BinaryReturn<T>::BinaryReturn()
 {
 	this->root = NULL;
 	this->current = NULL;
 }
-
-/*template <class T>
-Tree::BinaryReturn<T>::BinaryReturn(const Tree::BinaryReturn<T>& br)
-{
-	this->root = br.root;
-	this->current = br.current;
-}*/
 
 template <class T>
 Tree::BinaryReturn<T>::~BinaryReturn()
@@ -260,8 +272,8 @@ template <class T>
 Tree::Node::Key *Tree::BinaryReturn<T>::appendRight(Tree::BinaryReturn<T> *tree)
 {
 	Tree::Node::Key *added_key = this->appendRight(tree->getRoot());
-	printf("appendRight ok\n");
-	// TODO: Dodawanie drzewa musi aktualizować klucze wszystkich wezlow
+	this->setCurrent(tree->getRoot());
+	this->updateBelow(false);
 	return added_key;
 }
 
@@ -269,8 +281,8 @@ template <class T>
 Tree::Node::Key *Tree::BinaryReturn<T>::appendLeft(Tree::BinaryReturn<T> *tree)
 {
 	Tree::Node::Key *added_key = this->appendLeft(tree->getRoot());
-	printf("appendLeft ok\n");
-	// j.w.
+	this->setCurrent(tree->getRoot());
+	this->updateBelow(true);
 	return added_key;
 }
 

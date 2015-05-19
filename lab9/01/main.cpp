@@ -58,36 +58,34 @@ void huffman(FILE *fout, List::List< Tree::BinaryReturn<symbol>* > *lista)
 {
 	while(lista->getLen() > 1)
 	{
-		printf("huffman petla\n");
+		Tree::BinaryReturn<symbol> *lewe = *(*lista)[1]->getData();
+		Tree::BinaryReturn<symbol> *prawe = *(*lista)[2]->getData();
+		lista->remove(1, false);	// usuwam wezly dodawane do drzewa
+		lista->remove(1, false);	// tutaj tez 1, poniewaz po usunieciu pierwszego, drugi staje sie pierwszym elementem
+
 		symbol p;
 		p.zawiera_dane = false;
-		p.czest = (*(*lista)[1]->getData())->getRoot()->getData()->czest + (*(*lista)[2]->getData())->getRoot()->getData()->czest;	// suma czestotliwosci dwoch najmniejszych drzew
-		printf("suma ok\n");
+		p.czest = lewe->getRoot()->getData()->czest + prawe->getRoot()->getData()->czest;	// suma czestotliwosci dwoch najmniejszych drzew
 
 		Tree::Node::BinaryReturn<symbol> *korzen = new Tree::Node::BinaryReturn<symbol>(p);
 		Tree::BinaryReturn<symbol> *drzewo = new Tree::BinaryReturn<symbol>;
 		drzewo->setRoot(korzen);
-		printf("nowe drzewo ok\n");
 
-		drzewo->appendLeft((*(*lista)[1]->getData()));	// dodaje wezly nowego drzewa
-		drzewo->appendRight((*(*lista)[2]->getData()));
-		printf("dodanie ok\n");
+		drzewo->Reset();	drzewo->appendLeft(lewe);	// dodaje wezly nowego drzewa
+		drzewo->Reset();	drzewo->appendRight(prawe);
 
-		lista->remove(1, false);
-		lista->remove(2, false);
-		printf("lista remove ok\n");
-
+		List::Element< Tree::BinaryReturn<symbol>* > *li = new List::Element< Tree::BinaryReturn<symbol>* >(drzewo);
 		int i=1;
 		for(lista->reset(); lista->current(); lista->next())	// petla automatycznie sortujaca
 		{
 			if((*lista->current()->getData())->getRoot()->getData()->czest > p.czest)
 			{
-				lista->prependBefore(new List::Element< Tree::BinaryReturn<symbol>* >(drzewo), i);
+				lista->prependBefore(li, i);
 				break;
 			}
 			i++;
 		}
-		printf("sortowanie ok\n");
+		if(!lista->current()) *lista += li;			// element nie zostal dodany wczesniej, dodaje na koniec
 	}
 	printf("gotowe\n");
 }
