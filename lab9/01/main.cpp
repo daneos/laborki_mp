@@ -79,7 +79,7 @@ void huffman(List::List< Tree::BinaryReturn<symbol>* > *lista)
 	}
 }
 
-void wypisz_bitmape(FILE *fout, unsigned int B, int L)
+inline void wypisz_bitmape(FILE *fout, unsigned int B, int L)
 {
 	for(int i=1; i <= L; i++)
 		fprintf(fout, "%d", 1-BITMAP_CHECK(B, i));		// z racji odwrotnej implementacji bitmapy, musze zanegowac wynik
