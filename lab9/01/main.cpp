@@ -15,16 +15,6 @@ typedef struct _symbol {
 	double czest;		// czestotliwosc/prawdopodobienstwo
 } symbol;
 
-void wypisz_liste(List::List< Tree::BinaryReturn<symbol>* > *L)
-{
-	printf("wypisz\n");
-	for(L->reset(); L->current(); L->next())
-	{
-		symbol *p = (*L->current()->getData())->getRoot()->getData();
-		printf("%p, %s, %c, %f\n", p, p->zawiera_dane?"true":"false", p->zawiera_dane?p->litera:'~', p->czest);
-	}
-}
-
 void czytaj(FILE *fin, List::List< Tree::BinaryReturn<symbol>* > *L)
 {
 	while(true)
@@ -54,7 +44,7 @@ void czytaj(FILE *fin, List::List< Tree::BinaryReturn<symbol>* > *L)
 	}
 }
 
-void huffman(FILE *fout, List::List< Tree::BinaryReturn<symbol>* > *lista)
+void huffman(List::List< Tree::BinaryReturn<symbol>* > *lista)
 {
 	while(lista->getLen() > 1)
 	{
@@ -87,7 +77,41 @@ void huffman(FILE *fout, List::List< Tree::BinaryReturn<symbol>* > *lista)
 		}
 		if(!lista->current()) *lista += li;			// element nie zostal dodany wczesniej, dodaje na koniec
 	}
-	printf("gotowe\n");
+}
+
+void wypisz_bitmape(FILE *fout, unsigned int B, int L)
+{
+	for(int i=1; i <= L; i++)
+		fprintf(fout, "%d", 1-BITMAP_CHECK(B, i));		// z racji odwrotnej implementacji bitmapy, musze zanegowac wynik
+}
+
+void wypisz(FILE *fout, Tree::BinaryReturn<symbol> *T)
+{
+	if(T->Current()->getData()->zawiera_dane)
+	{
+		fprintf(fout, "%c: ", T->Current()->getData()->litera);
+		wypisz_bitmape(fout, T->Current()->key->Bitmap, T->Current()->key->Depth);
+		fprintf(fout, "\n");
+	}
+
+	if(T->Current()->Left())
+	{
+		T->Left();
+		wypisz(fout, T);
+	}
+	if(T->Current()->Right())
+	{
+		T->Right();
+		wypisz(fout, T);
+	}
+
+	T->Parent();
+}
+
+inline void wypisz_kodowanie(FILE *fout, Tree::BinaryReturn<symbol> *T)
+{
+	T->Reset();
+	wypisz(fout, T);
 }
 
 int main(int argc, char *argv[])
@@ -114,9 +138,8 @@ int main(int argc, char *argv[])
 
 	List::List< Tree::BinaryReturn<symbol>* > *L = new List::List< Tree::BinaryReturn<symbol>* >;		// lista drzew o elementach typu symbol
 	czytaj(in, L);
-	wypisz_liste(L);
-	huffman(out, L);
-	wypisz_liste(L);
+	huffman(L);
+	wypisz_kodowanie(out, (*(*L)[1]->getData()));	// po wykonaniu algorytmu w liscie zostaje tylko jedno drzewo
 	
 	delete L;
 	fclose(in);		// zamkniecie plikow

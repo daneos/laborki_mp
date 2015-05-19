@@ -1,5 +1,5 @@
 /*
- * Metody Programowania - Laboratorium 6-8
+ * Metody Programowania - Laboratorium 6-9
  * Implementacja klas: lista
  * Grzegorz Kowalski, 12i
  * wersja 2 | 04.2015

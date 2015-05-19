@@ -166,21 +166,21 @@ void Tree::BinaryReturn<T>::setCurrent(Tree::Node::BinaryReturn<T> *node)
 template <class T>
 void Tree::BinaryReturn<T>::updateBelow(bool is_left)
 {
-	if(this->Current()->left)	// aktualizacja kluczy pod spodem
-	{
-		this->Left();
-		this->updateBelow(true);
-	}
-	if(this->Current()->right)
-	{
-		this->Right();
-		this->updateBelow(false);
-	}
-	
 	this->Current()->key->Bitmap = is_left ?	// aktualizacja klucza w aktualnym wezle
 								   BITMAP_LEFT(this->Current()->Parent()->key->Bitmap, this->Current()->Parent()->key->Depth+1) :
 								   BITMAP_RIGHT(this->Current()->Parent()->key->Bitmap, this->Current()->Parent()->key->Depth+1);
 	this->Current()->key->Depth = this->Current()->Parent()->key->Depth+1;
+
+	if(this->Current()->Left())	// aktualizacja kluczy pod spodem
+	{
+		this->Left();
+		this->updateBelow(true);
+	}
+	if(this->Current()->Right())
+	{
+		this->Right();
+		this->updateBelow(false);
+	}
 
 	this->Parent();		// powrot
 }
