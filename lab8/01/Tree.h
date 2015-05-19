@@ -48,7 +48,7 @@ namespace Tree
 		public:
 			Key *key;
 			BinaryReturn(T data);
-			BinaryReturn(const BinaryReturn<T>& n);
+			//BinaryReturn(const BinaryReturn<T>& n);
 			~BinaryReturn();
 			BinaryReturn<T> *Parent(void);
 			BinaryReturn<T> *Left(void);
@@ -67,7 +67,7 @@ namespace Tree
 
 	public:
 		BinaryReturn();
-		BinaryReturn(const BinaryReturn& br);
+		//BinaryReturn(const BinaryReturn& br);
 		~BinaryReturn();
 		Node::BinaryReturn<T> *getRoot(void);
 		void setRoot(Node::BinaryReturn<T> *node);
@@ -117,7 +117,7 @@ Tree::Node::BinaryReturn<T>::BinaryReturn(T data)
 	this->key = new Tree::Node::Key;
 }
 
-template <class T>
+/*template <class T>
 Tree::Node::BinaryReturn<T>::BinaryReturn(const Tree::Node::BinaryReturn<T>& n)
 {
 	this->data = n.data;
@@ -125,7 +125,7 @@ Tree::Node::BinaryReturn<T>::BinaryReturn(const Tree::Node::BinaryReturn<T>& n)
 	this->left = n.left;
 	this->right = n.right;
 	this->key = n.key;
-}
+}*/
 
 template <class T>
 Tree::Node::BinaryReturn<T>::~BinaryReturn()
@@ -173,12 +173,12 @@ Tree::BinaryReturn<T>::BinaryReturn()
 	this->current = NULL;
 }
 
-template <class T>
+/*template <class T>
 Tree::BinaryReturn<T>::BinaryReturn(const Tree::BinaryReturn<T>& br)
 {
 	this->root = br.root;
 	this->current = br.current;
-}
+}*/
 
 template <class T>
 Tree::BinaryReturn<T>::~BinaryReturn()

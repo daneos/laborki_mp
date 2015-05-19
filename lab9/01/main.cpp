@@ -15,17 +15,17 @@ typedef struct _symbol {
 	double czest;		// czestotliwosc/prawdopodobienstwo
 } symbol;
 
-void wypisz_liste(List::List< Tree::BinaryReturn<symbol> > *L)
+void wypisz_liste(List::List< Tree::BinaryReturn<symbol>* > *L)
 {
 	printf("wypisz\n");
 	for(L->reset(); L->current(); L->next())
 	{
-		symbol *p = L->current()->getData()->getRoot()->getData();
+		symbol *p = (*L->current()->getData())->getRoot()->getData();
 		printf("%p, %s, %c, %f\n", p, p->zawiera_dane?"true":"false", p->zawiera_dane?p->litera:'~', p->czest);
 	}
 }
 
-void czytaj(FILE *fin, List::List< Tree::BinaryReturn<symbol> > *L)
+void czytaj(FILE *fin, List::List< Tree::BinaryReturn<symbol>* > *L)
 {
 	while(true)
 	{
@@ -38,12 +38,12 @@ void czytaj(FILE *fin, List::List< Tree::BinaryReturn<symbol> > *L)
 		Tree::Node::BinaryReturn<symbol> *korzen = new Tree::Node::BinaryReturn<symbol>(s);
 		Tree::BinaryReturn<symbol> *drzewo = new Tree::BinaryReturn<symbol>;
 		drzewo->setRoot(korzen);
-		List::Element< Tree::BinaryReturn<symbol> > *li = new List::Element< Tree::BinaryReturn<symbol> >(*drzewo);
+		List::Element< Tree::BinaryReturn<symbol>* > *li = new List::Element< Tree::BinaryReturn<symbol>* >(drzewo);
 
 		int i=1;
 		for(L->reset(); L->current(); L->next())	// petla automatycznie sortujaca
 		{
-			if(L->current()->getData()->getRoot()->getData()->czest > s.czest)		// sortowanie wg. czestotliwosci
+			if((*L->current()->getData())->getRoot()->getData()->czest > s.czest)		// sortowanie wg. czestotliwosci
 			{
 				L->prependBefore(li, i);	// dodawanie w odpowiednie miejsce listy
 				break;
@@ -54,14 +54,14 @@ void czytaj(FILE *fin, List::List< Tree::BinaryReturn<symbol> > *L)
 	}
 }
 
-void huffman(FILE *fout, List::List< Tree::BinaryReturn<symbol> > *lista)
+void huffman(FILE *fout, List::List< Tree::BinaryReturn<symbol>* > *lista)
 {
 	while(lista->getLen() > 1)
 	{
 		printf("huffman petla\n");
 		symbol p;
 		p.zawiera_dane = false;
-		p.czest = (*lista)[1]->getData()->getRoot()->getData()->czest + (*lista)[2]->getData()->getRoot()->getData()->czest;	// suma czestotliwosci dwoch najmniejszych drzew
+		p.czest = (*(*lista)[1]->getData())->getRoot()->getData()->czest + (*(*lista)[2]->getData())->getRoot()->getData()->czest;	// suma czestotliwosci dwoch najmniejszych drzew
 		printf("suma ok\n");
 
 		Tree::Node::BinaryReturn<symbol> *korzen = new Tree::Node::BinaryReturn<symbol>(p);
@@ -69,8 +69,8 @@ void huffman(FILE *fout, List::List< Tree::BinaryReturn<symbol> > *lista)
 		drzewo->setRoot(korzen);
 		printf("nowe drzewo ok\n");
 
-		drzewo->appendLeft((*lista)[1]->getData());	// dodaje wezly nowego drzewa
-		drzewo->appendRight((*lista)[2]->getData());
+		drzewo->appendLeft((*(*lista)[1]->getData()));	// dodaje wezly nowego drzewa
+		drzewo->appendRight((*(*lista)[2]->getData()));
 		printf("dodanie ok\n");
 
 		lista->remove(1, false);
@@ -80,9 +80,9 @@ void huffman(FILE *fout, List::List< Tree::BinaryReturn<symbol> > *lista)
 		int i=1;
 		for(lista->reset(); lista->current(); lista->next())	// petla automatycznie sortujaca
 		{
-			if(lista->current()->getData()->getRoot()->getData()->czest > p.czest)
+			if((*lista->current()->getData())->getRoot()->getData()->czest > p.czest)
 			{
-				lista->prependBefore(new List::Element< Tree::BinaryReturn<symbol> >(*drzewo), i);
+				lista->prependBefore(new List::Element< Tree::BinaryReturn<symbol>* >(drzewo), i);
 				break;
 			}
 			i++;
@@ -114,7 +114,7 @@ int main(int argc, char *argv[])
 		exit(1);
 	}
 
-	List::List< Tree::BinaryReturn<symbol> > *L = new List::List< Tree::BinaryReturn<symbol> >;		// lista drzew o elementach typu symbol
+	List::List< Tree::BinaryReturn<symbol>* > *L = new List::List< Tree::BinaryReturn<symbol>* >;		// lista drzew o elementach typu symbol
 	czytaj(in, L);
 	wypisz_liste(L);
 	huffman(out, L);
