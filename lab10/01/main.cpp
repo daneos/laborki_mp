@@ -21,7 +21,7 @@ inline void print_help(char *argv0)
 	printf("UZYCIE: %s <opcje> [plik_wyjsciowy]\n", argv0);
 	printf("\t--generator\tgenerator liczb losowych (LCG, MLCG, ALFG, TEST)\n");
 	printf("\t--from\t\tpoczatek zakresu generowanych liczb (domyslnie 0)\n");
-	printf("\t--to\t\tkoniec zakresu (domyslnie 1)\n");
+	printf("\t--to\t\tkoniec zakresu (domyslnie 100)\n");
 	printf("\t--seed\t\tziarno generatora (domyslnie czas systemu)\n");
 	printf("\t-n\t\tilosc generowanych liczb (domyslnie 1)\n");
 	printf("\t--help\t\twyswietla ten komunikat pomocy\n");
@@ -40,7 +40,7 @@ int main(int argc, char *argv[])
 		{ 0,			0,					0,	0	}
 	};
 	
-	opts options = { 1, 0, 1, time(NULL), NULL, stdout };	// wartosci domyslne opcji
+	opts options = { 1, 0, 100, time(NULL), NULL, stdout };	// wartosci domyslne opcji
 
 	while(true)		// petla interpretujaca opcje
 	{
