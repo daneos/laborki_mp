@@ -20,10 +20,20 @@ inline void print_help(char *argv0)
 {
 	printf("UZYCIE: %s <opcje> [plik_wyjsciowy]\n", argv0);
 	printf("\t--generator\tgenerator liczb losowych (LCG, MLCG, ALFG, TEST)\n");
+	printf("\t\t\tLCG (Linear Congruential Generator)\n");
+	printf("\t\t\t\tX(n) = (a * X(n-1) + c) %% m\n");
+	printf("\t\t\tMLCG (Multiplicative Linear Congruential Generator)\n");
+	printf("\t\t\t\tX(n) = (a * X(n-1)) %% m\n");
+	printf("\t\t\tALFG (Additive Lagged Fibonacci Generator)\n");
+	printf("\t\t\t\tX(n) = (X(n-r) @ X(n-s)) %% m\n");
+	printf("\t\t\tTEST (Generator testowy)\n");
+	printf("\t\t\t\tX(n) = 4\n");
+	printf("\n");
 	printf("\t--from\t\tpoczatek zakresu generowanych liczb (domyslnie 0)\n");
 	printf("\t--to\t\tkoniec zakresu (domyslnie 100)\n");
 	printf("\t--seed\t\tziarno generatora (domyslnie czas systemu)\n");
 	printf("\t-n\t\tilosc generowanych liczb (domyslnie 1)\n");
+	printf("\t-v\t\ttryb verbose\n");
 	printf("\t--help\t\twyswietla ten komunikat pomocy\n");
 }
 
@@ -40,11 +50,11 @@ int main(int argc, char *argv[])
 		{ 0,			0,					0,	0	}
 	};
 	
-	opts options = { 1, 0, 100, time(NULL), NULL, stdout };	// wartosci domyslne opcji
+	opts options = { 1, 0, 100, time(NULL), NULL, false, stdout };	// wartosci domyslne opcji
 
 	while(true)		// petla interpretujaca opcje
 	{
-		c = getopt_long(argc, argv, "n:g:f:t:s:h", long_opts, &option_index);	// getopt - interpretacja opcji, watpie zeby dzialalo pod windowsem
+		c = getopt_long(argc, argv, "n:g:f:t:s:vh", long_opts, &option_index);	// getopt - interpretacja opcji, watpie zeby dzialalo pod windowsem
 		if(c == -1) break;	// koniec opcji
 		
 		switch(c)
@@ -70,6 +80,10 @@ int main(int argc, char *argv[])
 				options.seed = atoll(optarg);
 				break;
 
+			case 'v':
+				options.verbose = true;
+				break;
+
  			case 'h':
 				print_help(argv[0]);
 				exit(0);
@@ -84,11 +98,7 @@ int main(int argc, char *argv[])
 		}
 	}
 
-	if(options.gen == NULL)
-	{
-		fprintf(stderr, "Musisz podac generator. Zobacz `%s --help`.\n", argv[0]);
-		exit(1);
-	}
+	if(options.gen == NULL) die("Musisz podac generator. Uruchom z opcja --help aby uzyskac pomoc.");
 	
 	if(optind < argc)	// podano dodatkowy argument - nazwe pliku wyjsciowego
 	{
@@ -99,13 +109,16 @@ int main(int argc, char *argv[])
 		}
 	}
 
-	printf("n\t\t= %lld\n", options.n);
-	printf("from\t\t= %lld\n", options.from);
-	printf("to\t\t= %lld\n", options.to);
-	printf("seed\t\t= %lld\n", options.seed);
-	printf("generator\t= %s\n", options.gen);
+	if(options.verbose)
+	{
+		printf("n\t\t= %lld\n", options.n);
+		printf("from\t\t= %lld\n", options.from);
+		printf("to\t\t= %lld\n", options.to);
+		printf("seed\t\t= %lld\n", options.seed);
+		printf("generator\t= %s\n", options.gen);
+	}
 
-	generator(&options);	// wywolanie generatora
+	if(!generator(&options)) die("Nieznany generator. Uruchom z opcja --help aby uzyskac pomoc.");
 
 	fclose(options.out);
 	return 0;
