@@ -13,7 +13,7 @@ long long *generator_LCG(opts *o, int multi)
 {
 	if(o->verbose) printf("Inicjalizacja generatora (M)LCG...\n");
 
-	long long m = 101;		// modyfikacja pozwalajaca osiagnac zadany zakres
+	long long m = o->to - o->from + 1;		// modyfikacja pozwalajaca osiagnac zadany zakres
 	long long x0 = o->seed % m;		// poniewaz x0 < m
 
 	// rozklad m na czynniki pierwsze
@@ -57,7 +57,7 @@ long long *generator_LCG(opts *o, int multi)
 		if(b % 4 == 0)
 			a = b+1;		// jesli m oraz b jest podzielne przez 4 to a = b+1 (b = a-1)
 	}
-	else a = (time(NULL) * x0) ^ o->seed;		// w przeciwnym wypadku a ustawiane jest na wzglednie losowa wartosc
+	else a = ((time(NULL) * x0) & m) ^ o->seed;		// w przeciwnym wypadku a ustawiane jest na wzglednie losowa wartosc
 	a %= m;		// poniewz a < m 
 
 	if(o->verbose)
@@ -75,14 +75,57 @@ long long *generator_LCG(opts *o, int multi)
 	for(int i=0; i < o->n; i++)
 	{
 		x0 = (a * x0 + c) % m;
-		wyniki[i] = o->from + ((double)x0/100.) * (o->to - o->from);	// w celu zapewnienia odpowiedniego zakresu liczb
+		wyniki[i] = o->from + x0;	// w celu zapewnienia odpowiedniego zakresu liczb
 	}
 	return wyniki;
 }
 
 long long *generator_ALFG(opts *o, int not_used)
 {
+	if(o->verbose) printf("Inicjalizacja generatora ALFG...\n");
 
+	long long m = o->to - o->from + 1;
+	opts o_lcg = {
+		1,					// n
+		0,					// from
+		FIBONACCI_VALUES-1,	// to
+		o->seed,			// seed
+		NULL,				// gen
+		false,				// verbose
+		NULL				// out
+	};
+
+	long long *f = generator_LCG(&o_lcg, 0);		// losowanie wartosci r i s
+	int r = fibonacci[*f].r;
+	int s = fibonacci[*f].s;
+	free(f);
+
+	o_lcg.n = r;
+	o_lcg.from = 0;
+	o_lcg.to = m-1;
+	long long *x = generator_LCG(&o_lcg, 0);		// losowanie tablicy x
+
+	if(o->verbose)
+	{
+		printf("r\t= %d\n", r);
+		printf("s\t= %d\n", s);
+		printf("m\t= %lld\n", m);
+		printf("x\t= { ");
+		for(int i=0; i < r; i++)
+			printf("%lld%s ", x[i], (i==r-1)?"":",");
+		printf("}\n");
+	}
+
+	if(r < s || r < 1 || o->n < r) die("Generator ALFG: Niepoprawne dane.");
+
+	long long *wyniki = (long long *)malloc(o->n*sizeof(long long));
+	for(int i=0, j=0; j < o->n; ++i %= r, j++)
+	{
+		x[i] = (x[(r+i-s)%r] + x[i]) % m;
+		wyniki[j] = o->from + x[i];
+	}
+	free(x);
+	return wyniki;
 }
 
 long long *generator_TEST(opts *o, int not_used)
@@ -91,7 +134,7 @@ long long *generator_TEST(opts *o, int not_used)
 
 	long long *wyniki = (long long *)malloc(o->n*sizeof(long long));
 	for(int i=0; i < o->n; i++)
-		wyniki[i] = liczba_losowa;
+		wyniki[i] = o->from + ((double)liczba_losowa/100.) * (o->to - o->from);
 	return wyniki;
 }
 

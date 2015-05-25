@@ -36,11 +36,26 @@ const struct {
 	const char *name;				// nazwa generatora
 	long long *(*gen)(opts*, int);	// funkcja generatora
 	int option;						// alternatywna opcja
-} generator_map [] = {				// mapa funkcji generujacych, pozwala na uruchamianie funkcji za pomoca ciagu znakow
+} generator_map[] = {				// mapa funkcji generujacych, pozwala na uruchamianie funkcji za pomoca ciagu znakow
 	{ "LCG",	generator_LCG,	0 },
 	{ "MLCG",	generator_LCG,	1 },
 	{ "ALFG",	generator_ALFG,	0 },
 	{ "TEST",	generator_TEST,	0 }
 };
+
+const struct {
+	int r;
+	int s;
+} fibonacci[] = {		// najlepsze wartosci dla generatora fibonacciego
+	{ 17, 5 },
+	{ 31, 13 },
+	{ 55, 24 },
+	{ 68, 33 },
+	{ 97, 33 },
+	{ 607, 273 },
+	{ 1279, 418 }
+};
+
+const int FIBONACCI_VALUES = 7;	// ilosc wpisow w tablicy fibonacciego
 
 #endif /* __GENERATOR_H__ */
