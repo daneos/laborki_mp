@@ -130,6 +130,8 @@ long long *generator_ALFG(opts *o, int not_used)
 
 long long *generator_TEST(opts *o, int not_used)
 {
+	if(o->verbose) printf("Ten generator jest przeznaczony wylacznie do testow.\nZawsze zwraca 4.\n");
+
 	int liczba_losowa = 4;	// wyznaczona na podstawie losowego rzutu kostka
 
 	long long *wyniki = (long long *)malloc(o->n*sizeof(long long));

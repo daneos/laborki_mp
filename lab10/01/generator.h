@@ -17,7 +17,7 @@ typedef struct _opts {
 	long long n;				// ilosc generowanych liczb
 	long long from;				// poczatek przedzialu
 	long long to;				// koniec przedzialu
-	unsigned long long seed;	// ziarno generatora
+	long long seed;				// ziarno generatora
 	char *gen;					// generator
 	bool verbose;				// tryb verbose
 	FILE *out;					// plik wyjsciowy
@@ -56,6 +56,6 @@ const struct {
 	{ 1279, 418 }
 };
 
-const int FIBONACCI_VALUES = 7;	// ilosc wpisow w tablicy fibonacciego
+const int FIBONACCI_VALUES = sizeof(fibonacci)/sizeof(fibonacci[0]);	// ilosc wpisow w tablicy fibonacciego
 
 #endif /* __GENERATOR_H__ */
