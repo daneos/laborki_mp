@@ -14,7 +14,9 @@ long long *generator_LCG(opts *o, int multi)
 	if(o->verbose) printf("Inicjalizacja generatora (M)LCG...\n");
 
 	long long m = o->to - o->from + 1;		// modyfikacja pozwalajaca osiagnac zadany zakres
+	if(m <= 0) die("Generator (M)LCG: Blad modulu."); 
 	long long x0 = o->seed % m;		// poniewaz x0 < m
+	if(x0 < 0 || x0 >= m) die("Generator (M)LCG: Blad x0.");
 
 	// rozklad m na czynniki pierwsze
 	long long R = m;
@@ -23,11 +25,11 @@ long long *generator_LCG(opts *o, int multi)
 	int *czynniki = NULL;	// tablica czynnikow
 	while(R > 1)
 	{
-		while(R % k == 0)
+		if(R % k == 0)
 		{
 			czynniki = (int*)realloc(czynniki, ++il_cz*sizeof(int));		// tablica dynamiczna, wersja C
-			czynniki[il_cz] = k;
-			R /= k;
+			czynniki[il_cz-1] = k;
+			while((R % k) == 0) R /= k;
 		}
 		k++;
 	}
@@ -39,37 +41,29 @@ long long *generator_LCG(opts *o, int multi)
 		c = 2;
 		while(true)
 		{
-			bool w_czynnikach = false;
-			for(int i=0; i < il_cz; i++)
-				if(c == czynniki[i]) w_czynnikach=true;
-			if(!w_czynnikach) break;
-			c++;
+			if(NWD(m, c) == 1) break;
+			else c++;
 		}
 	}
 	else c = 0;		// generator MLCG
+	if(c < 0 || c >= m || (!multi && c == 0)) die("Generator (M)LCG: Blad przyrostu.");
 
 	// wyznaczanie mnoznika
 	long long a;
 	long long b = 1;
-	for(int i=0; i < il_cz; i++) b *= czynniki[i];		// b jest wielokrotnoscia wszystkich dzielnikow m
-	if(m % 4 == 0)
-	{
-		if(b % 4 == 0)
-			a = b+1;		// jesli m oraz b jest podzielne przez 4 to a = b+1 (b = a-1)
-	}
+	for(int i=0; i < il_cz; i++) b *= czynniki[i];	// b jest wielokrotnoscia wszystkich dzielnikow m
+	if((m % 4 == 0) && (b % 4 == 0)) a = b+1;		// jesli m oraz b jest podzielne przez 4 to a = b+1 (b = a-1)
 	else a = ((time(NULL) * x0) & m) ^ o->seed;		// w przeciwnym wypadku a ustawiane jest na wzglednie losowa wartosc
-	a %= m;		// poniewz a < m 
+	a %= m;		// poniewz a < m
+	if(a < 0 || a >= m) die("Generator (M)LCG: Blad mnoznika.");
 
 	if(o->verbose)
 	{
 		printf("a\t= %lld\n", a);
 		printf("x0\t= %lld\n", x0);
 		printf("c\t= %d\n", c);
-		printf("m\t= %lld\n", m);
+		printf("m\t= %lld\n\n", m);
 	}
-
-	if(m <= 0 || x0 < 0 || x0 >= m || c < 0 || c >= m || a < 0 || a >= m) die("Generator (M)LCG: Niepoprawne dane.");
-	if(!multi && c == 0) die("Generator (M)LCG: Blad wyznaczania przyrostu.");
 
 	long long *wyniki = (long long *)malloc(o->n*sizeof(long long));
 	for(int i=0; i < o->n; i++)
@@ -91,7 +85,7 @@ long long *generator_ALFG(opts *o, int not_used)
 		FIBONACCI_VALUES-1,	// to
 		o->seed,			// seed
 		NULL,				// gen
-		false,				// verbose
+		o->verbose,			// verbose
 		NULL				// out
 	};
 
@@ -99,6 +93,7 @@ long long *generator_ALFG(opts *o, int not_used)
 	int r = fibonacci[*f].r;
 	int s = fibonacci[*f].s;
 	free(f);
+	if(r < s || r < 1) die("Generator ALFG: Niepoprawne dane.");
 
 	o_lcg.n = r;
 	o_lcg.from = 0;
@@ -113,10 +108,8 @@ long long *generator_ALFG(opts *o, int not_used)
 		printf("x\t= { ");
 		for(int i=0; i < r; i++)
 			printf("%lld%s ", x[i], (i==r-1)?"":",");
-		printf("}\n");
+		printf("}\n\n");
 	}
-
-	if(r < s || r < 1 || o->n < r) die("Generator ALFG: Niepoprawne dane.");
 
 	long long *wyniki = (long long *)malloc(o->n*sizeof(long long));
 	for(int i=0, j=0; j < o->n; ++i %= r, j++)
@@ -158,8 +151,22 @@ bool generator(opts *o)		// funkcja wywolujaca odpowiedni generator na podstawie
 	return false;	// brak generatora
 }
 
+// funkcje pomocnicze
+//-----------------------------------------------------------------------------
 void die(const char *message)
 {
 	fprintf(stderr, "%s\n", message);
 	exit(-1);
+}
+
+int NWD(int a, int b)
+{
+	int c;
+	while(b != 0)
+	{
+		c = a % b;
+		a = b;
+		b = c;
+	}
+	return a;
 }

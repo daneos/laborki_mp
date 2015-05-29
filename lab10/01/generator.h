@@ -31,6 +31,7 @@ long long *generator_TEST(opts *o, int not_used);
 bool generator(opts *o);		// funkcja wywolujaca odpowiedni generator na podstawie opcji
 
 void die(const char *message);	// funkcja konczaca z bledem
+int NWD(int a, int b);			// najwiekszy wspolny dzielnik
 
 const struct {
 	const char *name;				// nazwa generatora
