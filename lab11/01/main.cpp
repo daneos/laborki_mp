@@ -29,7 +29,7 @@ int main(int argc, char **argv)
 		r,				// koniec przedzialu
 		time(NULL),		// seed
 		NULL,			// generator
-		true,			// verbose
+		false,			// verbose
 		NULL			// plik
 	};
 
