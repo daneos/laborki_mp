@@ -13,9 +13,10 @@ long long *generator_LCG(opts *o, int multi)
 {
 	if(o->verbose) printf("Inicjalizacja generatora (M)LCG...\n");
 
-	long long m = o->to - o->from + 1;		// modyfikacja pozwalajaca osiagnac zadany zakres
+	unsigned long long m = o->to - o->from + 1;		// modyfikacja pozwalajaca osiagnac zadany zakres
 	if(m <= 0) die("Generator (M)LCG: Blad modulu."); 
-	long long x0 = o->seed % m;		// poniewaz x0 < m
+	unsigned long long x0 = o->seed % m;		// poniewaz x0 < m
+	printf("%lld, %lld, %lld\n", m, x0, o->seed);
 	if(x0 < 0 || x0 >= m) die("Generator (M)LCG: Blad x0.");
 
 	// rozklad m na czynniki pierwsze
@@ -34,7 +35,7 @@ long long *generator_LCG(opts *o, int multi)
 		k++;
 	}
 
-	int c;
+	unsigned int c;
 	if(!multi)
 	{
 		// wyznaczanie przyrostu wzglednie pierwszego z m
@@ -49,8 +50,8 @@ long long *generator_LCG(opts *o, int multi)
 	if(c < 0 || c >= m || (!multi && c == 0)) die("Generator (M)LCG: Blad przyrostu.");
 
 	// wyznaczanie mnoznika
-	long long a;
-	long long b = 1;
+	unsigned long long a;
+	unsigned long long b = 1;
 	for(int i=0; i < il_cz; i++) b *= czynniki[i];	// b jest wielokrotnoscia wszystkich dzielnikow m
 	if((m % 4 == 0) && (b % 4 == 0)) a = b+1;		// jesli m oraz b jest podzielne przez 4 to a = b+1 (b = a-1)
 	else a = ((time(NULL) * x0) & m) ^ o->seed;		// w przeciwnym wypadku a ustawiane jest na wzglednie losowa wartosc

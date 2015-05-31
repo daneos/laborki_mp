@@ -17,7 +17,7 @@ typedef struct _opts {
 	long long n;				// ilosc generowanych liczb
 	long long from;				// poczatek przedzialu
 	long long to;				// koniec przedzialu
-	long long seed;				// ziarno generatora
+	unsigned long long seed;	// ziarno generatora
 	char *gen;					// generator
 	bool verbose;				// tryb verbose
 	FILE *out;					// plik wyjsciowy
