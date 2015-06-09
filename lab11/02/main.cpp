@@ -10,11 +10,11 @@
 #include <limits.h>
 #include "generator.h"
 
-#define proper_div(x, y)	((double)x / (double)y)		// dzielenie z rzutowaniem
+#define proper_div(x, y)	((long double)x / (long double)y)		// dzielenie z rzutowaniem
 
 typedef struct _limit {
-	double min;
-	double max;
+	long double min;
+	long double max;
 } limit;
 
 typedef struct _wielomian {
@@ -34,8 +34,8 @@ wielomian *wejscie(int argc, char *argv[])
 	for(int i=w.n; i >= 1; i--)			// kolejne wspolczynniki
 		w.a[w.n-i] = atoi(argv[i]);		// nie sprawdzam zakresu wspolczynnikow - sztuczne ograniczenie
 
-	w.x.min = atoi(argv[argc-3]);			// poczatek i koniec przedzialu
-	w.x.max = atoi(argv[argc-2]);			// j.w.
+	w.x.min = atof(argv[argc-3]);			// poczatek i koniec przedzialu
+	w.x.max = atof(argv[argc-2]);			// j.w.
 	if(w.x.max <= w.x.min) die("Poczatek przedzialu musi byc mniejszy od konca.");
 	
 	w.prob = atoi(argv[argc-1]);		// ilosc punktow
@@ -44,15 +44,15 @@ wielomian *wejscie(int argc, char *argv[])
 	return &w;
 }
 
-double wartosc_f(double x, wielomian *W)
+long double wartosc_f(long double x, wielomian *W)
 {
-	double wartosc = 0;
+	long double wartosc = 0;
 	for(int i=0; i < W->n; i++)
-		wartosc += (double)W->a[i] * pow(x, i);		// wyliczanie wartowsci wielomianu w punkcie x
+		wartosc += (long double)W->a[i] * pow(x, i);		// wyliczanie wartowsci wielomianu w punkcie x
 	return wartosc;
 }
 
-inline bool pod_f(double x, double y, wielomian *W)
+inline bool pod_f(long double x, long double y, wielomian *W)
 {
 	return (y <= wartosc_f(x, W));		// sprawdzenie czy punkt znajduje sie pod wykresem funkcji
 }
@@ -64,15 +64,15 @@ void ylimit(wielomian *W)
 
 	for(int i=0; i < W->prob; i++)	// sprawdzam liniowo z dokladnoscia do ilosci punktow
 	{
-		double wi = wartosc_f(W->x.min + proper_div(i, W->prob)*(W->x.max - W->x.min), W);
+		long double wi = wartosc_f(W->x.min + proper_div(i, W->prob)*(W->x.max - W->x.min), W);
 		if(wi < W->y.min) W->y.min = wi;
 		if(wi > W->y.max) W->y.max = wi;
 	}
 
-	printf("ylimit.max = %f\nylimit.min = %f\n", W->y.max, W->y.min);
+	printf("ylimit.max = %Lf\nylimit.min = %Lf\n", W->y.max, W->y.min);
 }
 
-double monte_carlo(wielomian *W)
+long double monte_carlo(wielomian *W)
 {
 	ylimit(W);		// wyznaczenie zakresu osi y
 
@@ -95,9 +95,11 @@ double monte_carlo(wielomian *W)
 	int pod = 0;
 	for(int i=0; i < W->prob; i++)
 		if(pod_f(proper_div(x[i], W->prob), proper_div(y[i], W->prob), W)) pod++;
+	free(x);
+	free(y);
 
-	int P = (W->y.max - W->y.min) * (W->x.max - W->x.min);		// pole prostokata 
-	return (double)P * proper_div(pod, W->prob);
+	long double P = (W->y.max - W->y.min) * (W->x.max - W->x.min);		// pole prostokata 
+	return P * proper_div(pod, W->prob);
 }
 
 int main(int argc, char *argv[])
@@ -113,8 +115,9 @@ int main(int argc, char *argv[])
 	printf("n = %d\nf(x) = ", W->n);
 	for(int i=0; i < W->n; i++)
 		printf("%d*x^%d + ", W->a[i], i);
-	printf("\nprob = %d\nxlimit.max = %f\nxlimit.min = %f\n", W->prob, W->x.max, W->x.min);
+	printf("\nprob = %d\nxlimit.max = %Lf\nxlimit.min = %Lf\n", W->prob, W->x.max, W->x.min);
 
-	printf("%f\n", monte_carlo(W));			// obliczenia i wyjscie
+	printf("\n%Lf\n", monte_carlo(W));			// obliczenia i wyjscie
+	free(W->a);
 	return 0;
 }
