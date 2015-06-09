@@ -7,16 +7,22 @@
 #include <stdio.h>
 #include <math.h>
 #include <stdlib.h>
+#include <limits.h>
 #include "generator.h"
 
 #define proper_div(x, y)	((double)x / (double)y)		// dzielenie z rzutowaniem
 
+typedef struct _limit {
+	double min;
+	double max;
+} limit;
+
 typedef struct _wielomian {
 	int n;		// stopien wielomianu
 	int *a;		// wspolczynniki
-	int p;		// poczatek przedzialu
-	int k;		// koniec przedzialu
 	int prob;	// ilosc probek
+	limit x;	// przedzial calkowania
+	limit y;	// przedzial wartosci
 } wielomian;
 
 wielomian *wejscie(int argc, char *argv[])
@@ -28,9 +34,9 @@ wielomian *wejscie(int argc, char *argv[])
 	for(int i=w.n; i >= 1; i--)			// kolejne wspolczynniki
 		w.a[w.n-i] = atoi(argv[i]);		// nie sprawdzam zakresu wspolczynnikow - sztuczne ograniczenie
 
-	w.p = atoi(argv[argc-3]);			// poczatek i koniec przedzialu
-	w.k = atoi(argv[argc-2]);			// j.w.
-	if(w.k <= w.p) die("Poczatek przedzialu musi byc mniejszy od konca.");
+	w.x.min = atoi(argv[argc-3]);			// poczatek i koniec przedzialu
+	w.x.max = atoi(argv[argc-2]);			// j.w.
+	if(w.x.max <= w.x.min) die("Poczatek przedzialu musi byc mniejszy od konca.");
 	
 	w.prob = atoi(argv[argc-1]);		// ilosc punktow
 	if(w.prob <= 0) die("Ilosc probek musi byc wieksza od zera.");
@@ -51,31 +57,46 @@ inline bool pod_f(double x, double y, wielomian *W)
 	return (y <= wartosc_f(x, W));		// sprawdzenie czy punkt znajduje sie pod wykresem funkcji
 }
 
+void ylimit(wielomian *W)
+{
+	W->y.max = INT_MIN;
+	W->y.min = INT_MAX;
+
+	for(int i=0; i < W->prob; i++)	// sprawdzam liniowo z dokladnoscia do ilosci punktow
+	{
+		double wi = wartosc_f(W->x.min + proper_div(i, W->prob)*(W->x.max - W->x.min), W);
+		if(wi < W->y.min) W->y.min = wi;
+		if(wi > W->y.max) W->y.max = wi;
+	}
+
+	printf("ylimit.max = %f\nylimit.min = %f\n", W->y.max, W->y.min);
+}
+
 double monte_carlo(wielomian *W)
 {
-	int ylimit_top = 162;		// TODO: Limity wartosci y
-	int ylimit_bottom = 6;		// TODO: Limity wartosci y
+	ylimit(W);		// wyznaczenie zakresu osi y
 
 	opts genopts = { 
-		W->prob,		// ilosc liczb
-		W->p*W->prob,	// poczatek przedzialu
-		W->k*W->prob,	// koniec przedzialu
-		time(NULL),		// seed
-		NULL,			// generator
-		false,			// verbose
-		NULL			// plik
+		W->prob,			// ilosc liczb
+		W->x.min * W->prob,	// poczatek przedzialu
+		W->x.max * W->prob,	// koniec przedzialu
+		time(NULL),			// seed
+		NULL,				// generator
+		false,				// verbose
+		NULL				// plik
 	};
 
 	long long *x = generator_ALFG(&genopts, 0);		// generacja wspolrzednych x
-	genopts.from = ylimit_bottom * W->prob;
-	genopts.to = ylimit_top * W->prob;
+	genopts.from = W->y.min * W->prob;
+	genopts.to = W->y.max * W->prob;
+	genopts.seed = genopts.seed * x[0] + x[1];		// nowy seed
 	long long *y = generator_ALFG(&genopts, 0);		// generacja wspolrzednych y
 
 	int pod = 0;
 	for(int i=0; i < W->prob; i++)
 		if(pod_f(proper_div(x[i], W->prob), proper_div(y[i], W->prob), W)) pod++;
 
-	int P = (ylimit_top - ylimit_bottom) * (W->k - W->p);		// pole prostokata 
+	int P = (W->y.max - W->y.min) * (W->x.max - W->x.min);		// pole prostokata 
 	return (double)P * proper_div(pod, W->prob);
 }
 
@@ -88,6 +109,12 @@ int main(int argc, char *argv[])
 	}
 
 	wielomian *W = wejscie(argc, argv);		// wczytywanie argumentow
+
+	printf("n = %d\nf(x) = ", W->n);
+	for(int i=0; i < W->n; i++)
+		printf("%d*x^%d + ", W->a[i], i);
+	printf("\nprob = %d\nxlimit.max = %f\nxlimit.min = %f\n", W->prob, W->x.max, W->x.min);
+
 	printf("%f\n", monte_carlo(W));			// obliczenia i wyjscie
 	return 0;
 }
