@@ -1,3 +1,3 @@
 #!/bin/bash
 
-g++ generator.cpp main.cpp
+g++ -ggdb generator.cpp main.cpp

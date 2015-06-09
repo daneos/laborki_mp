@@ -1,5 +1,5 @@
 /*
- * Metody Programowania - Laboratorium 10
+ * Metody Programowania - Laboratorium 10-11
  * Implementacja: generatory liczb losowych
  * Grzegorz Kowalski, 12i
  * wersja 1 | 05.2015

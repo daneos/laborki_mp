@@ -1,0 +1,1 @@
+../../lab10/01/generator.h
